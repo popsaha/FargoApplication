@@ -1,0 +1,144 @@
+-----------Exception Details on  14-09-2022 08:49:43 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 14-09-2022 08:49:43 PM
+
+Error Line No : :line 23
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)
+
+ Error Page Url: http://localhost:6492/
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  14-09-2022 08:50:40 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 14-09-2022 08:50:40 PM
+
+Error Line No : :line 23
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)
+
+ Error Page Url: http://localhost:6492/
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  14-09-2022 08:51:56 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 14-09-2022 08:51:56 PM
+
+Error Line No : :line 23
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)
+
+ Error Page Url: http://localhost:6492/
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  14-09-2022 08:51:57 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 14-09-2022 08:51:57 PM
+
+Error Line No : :line 23
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)
+
+ Error Page Url: http://localhost:6492/
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  14-09-2022 10:20:20 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 14-09-2022 10:20:20 PM
+
+Error Line No : line 142
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : @MANAGER_REMARK is not a parameter for procedure spCreditEntry.
+
+ Error Page Url: http://localhost:6492/Credit/ActionCreditEntry
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  14-09-2022 11:58:34 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 14-09-2022 11:58:34 PM
+
+Error Line No : line 177
+
+Error Message: IndexOutOfRangeException
+
+Exception Type: System.IndexOutOfRangeException
+
+Error Location : STAUTS
+
+ Error Page Url: http://localhost:6492/Credit/Report
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  14-09-2022 11:58:42 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 14-09-2022 11:58:42 PM
+
+Error Line No : line 177
+
+Error Message: IndexOutOfRangeException
+
+Exception Type: System.IndexOutOfRangeException
+
+Error Location : STAUTS
+
+ Error Page Url: http://localhost:6492/Credit/Report
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  14-09-2022 11:58:50 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 14-09-2022 11:58:50 PM
+
+Error Line No : line 177
+
+Error Message: IndexOutOfRangeException
+
+Exception Type: System.IndexOutOfRangeException
+
+Error Location : STAUTS
+
+ Error Page Url: http://localhost:6492/Credit/Report
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+

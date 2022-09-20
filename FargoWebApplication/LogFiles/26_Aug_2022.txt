@@ -1,0 +1,36 @@
+-----------Exception Details on  26-08-2022 05:41:16 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 26-08-2022 05:41:16 PM
+
+Error Line No : line 128
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote server returned an error: (400) Bad Request.
+
+ Error Page Url: http://localhost:6492/api/MPesaTransactionAPI/MPesaValidation
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  26-08-2022 05:42:26 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 26-08-2022 05:42:26 PM
+
+Error Line No : line 128
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote server returned an error: (400) Bad Request.
+
+ Error Page Url: http://localhost:6492/api/MPesaTransactionAPI/MPesaValidation
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+

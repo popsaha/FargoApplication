@@ -1,0 +1,90 @@
+-----------Exception Details on  31-08-2022 08:50:52 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 31-08-2022 08:50:52 PM
+
+Error Line No : line 553
+
+Error Message: FormatException
+
+Exception Type: System.FormatException
+
+Error Location : Input string was not in a correct format.
+
+ Error Page Url: http://localhost:6492/Report/Transaction
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  31-08-2022 08:53:23 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 31-08-2022 08:53:23 PM
+
+Error Line No : line 553
+
+Error Message: FormatException
+
+Exception Type: System.FormatException
+
+Error Location : Input string was not in a correct format.
+
+ Error Page Url: http://localhost:6492/Report/Transaction
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  31-08-2022 09:43:50 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 31-08-2022 09:43:50 PM
+
+Error Line No : line 549
+
+Error Message: IndexOutOfRangeException
+
+Exception Type: System.IndexOutOfRangeException
+
+Error Location : Cannot find table 2.
+
+ Error Page Url: http://localhost:6492/Report/Transaction
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  31-08-2022 09:48:15 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 31-08-2022 09:48:15 PM
+
+Error Line No : line 549
+
+Error Message: FormatException
+
+Exception Type: System.FormatException
+
+Error Location : Input string was not in a correct format.
+
+ Error Page Url: http://localhost:6492/Report/Transaction
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  31-08-2022 10:53:26 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 31-08-2022 10:53:26 PM
+
+Error Line No : line 549
+
+Error Message: InvalidOperationException
+
+Exception Type: System.InvalidOperationException
+
+Error Location : Sequence contains more than one element
+
+ Error Page Url: http://localhost:6492/Report/Transaction
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+

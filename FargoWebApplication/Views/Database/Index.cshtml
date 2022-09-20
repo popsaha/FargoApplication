@@ -1,0 +1,98 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+    #loader {
+        background-color: transparent;
+        background: transparent;
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('../../Images/480px-Loader.gif');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-color: white;
+        z-index: 10000;
+    }
+
+    .btn {
+        background-color: #0a654d;
+        border-color: #0a654d;
+    }
+
+        .btn:hover {
+            background-color: #074434;
+            border-color: #074434;
+        }
+
+        .btn:active {
+            background-color: #0a654d !important;
+            border-color: #0a654d;
+        }
+
+        .btn:focus {
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            color: #fff;
+            background-color: #074434;
+        }
+</style>
+
+
+<style>
+    .fontDesign {
+        color: #666666;
+        font-weight: bold;
+        font-size: 13px;
+    }
+</style>
+@if (ViewBag.Message != null)
+{
+    <script>alert('@ViewBag.Message');</script>
+}
+
+<div class="main-body">
+    <div class="page-wrapper">
+
+
+        <div class="page-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-block primary-breadcrumb" style="height:12px; background: linear-gradient(45deg, #074434, #0a654d);">
+                            <div class="breadcrumb-header">
+                                <h6><label style="color:white">Database Backup</label></h6>
+                            </div>
+                        </div>
+                        <div class="card-block">
+                            @using (Html.BeginForm("Index", "Database", FormMethod.Post, new { enctype = "multipart/form-data", id = "frmDatabaseBackup" }))
+                            {
+                                <div class="row">
+                                    <div class="col-md-12" align="center">
+                                        <input type="submit" class="btn btn-success" id="btnBackup" value="Backup" name="Backup">
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- Page-body end -->
+
+<div id="loader" style="text-align:center; padding-top:20%;">
+    <span style="font-size:22px;color:#dce3de;">Please wait...</span>
+</div>
+<div id="styleSelector">
+
+</div>
+<script type="text/javascript" src="~/Assets/js/jquery/jquery.min.js"></script>
+
+

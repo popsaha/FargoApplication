@@ -1,0 +1,90 @@
+-----------Exception Details on  30-08-2022 09:11:05 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 30-08-2022 09:11:05 PM
+
+Error Line No : line 336
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote name could not be resolved: 'fc-podev.fargocourier.co.ke'
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  30-08-2022 09:15:46 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 30-08-2022 09:15:46 PM
+
+Error Line No : line 338
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote name could not be resolved: 'fc-podev.fargocourier.co.ke'
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  30-08-2022 09:22:54 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 30-08-2022 09:22:54 PM
+
+Error Line No : line 534
+
+Error Message: FormatException
+
+Exception Type: System.FormatException
+
+Error Location : Input string was not in a correct format.
+
+ Error Page Url: http://localhost:6492/Report/Transaction
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  30-08-2022 09:23:00 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 30-08-2022 09:23:00 PM
+
+Error Line No : line 534
+
+Error Message: FormatException
+
+Exception Type: System.FormatException
+
+Error Location : Input string was not in a correct format.
+
+ Error Page Url: http://localhost:6492/Report/Transaction
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  30-08-2022 09:23:20 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 30-08-2022 09:23:20 PM
+
+Error Line No : line 534
+
+Error Message: FormatException
+
+Exception Type: System.FormatException
+
+Error Location : Input string was not in a correct format.
+
+ Error Page Url: http://localhost:6492/Report/Transaction
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+

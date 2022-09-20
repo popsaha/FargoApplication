@@ -1,0 +1,18 @@
+-----------Exception Details on  06-09-2022 12:43:13 AM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 06-09-2022 12:43:13 AM
+
+Error Line No : line 360
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote name could not be resolved: 'fc-podev.fargocourier.co.ke'
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+

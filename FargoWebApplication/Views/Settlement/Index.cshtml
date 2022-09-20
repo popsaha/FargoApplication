@@ -1,0 +1,724 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Fargo_Models.SettlementModel
+<style>
+    .fontDesign {
+        color: #666666;
+        font-weight: bold;
+        font-size: 13px;
+    }
+</style>
+@if (ViewBag.IsData == "0")
+{
+    <script>alert('Data not found');</script>
+}
+
+<style type="text/css">
+    #loader {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('../../Images/480px-Loader.gif');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-color: white;
+        z-index: 10000;
+    }
+
+    .btn {
+        background-color: #0a654d;
+        border-color: #0a654d;
+    }
+
+        .btn:hover {
+            background-color: #074434;
+            border-color: #074434;
+        }
+
+        .btn:active {
+            background-color: #0a654d !important;
+            border-color: #0a654d;
+        }
+
+        .btn:focus {
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            color: #fff;
+            background-color: #074434;
+        }
+</style>
+
+
+<style type="text/css">
+    .web_dialog_overlay {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: #000000;
+        opacity: .15;
+        filter: alpha(opacity=15);
+        -moz-opacity: .15;
+        z-index: 101;
+        display: none;
+    }
+
+    .web_dialog {
+        display: none;
+        position: fixed;
+        width: 550px;
+        height: 500px;
+        top: 29%;
+        left: 50%;
+        margin-left: -190px;
+        margin-top: -100px;
+        background-color: #ffffff;
+        border: 2px solid #336699;
+        padding: 0px;
+        z-index: 102;
+        font-family: Verdana;
+        font-size: 10pt;
+    }
+
+    .web_dialog_title {
+        border-bottom: solid 2px #336699;
+        background-color: #074434;
+        padding: 4px;
+        color: White;
+        font-weight: bold;
+        font-family:Arial;
+           display: none;
+    }
+
+        .web_dialog_title a {
+            color: White;
+            text-decoration: none;
+        }
+
+    .align_right {
+        text-align: right;
+    }
+</style>
+
+<style type="text/css">
+    .web_dialog_overlay1 {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: #000000;
+        opacity: .15;
+        filter: alpha(opacity=15);
+        -moz-opacity: .15;
+        z-index: 101;
+        display: none;
+    }
+
+    .web_dialog1 {
+        display: none;
+        position: fixed;
+       
+
+        /*top: 20%;*/
+        left: 28%;
+        margin-left: -90px;
+        margin-top: -25px;
+        background-color: #ffffff;
+        border: 2px solid #336699;
+        padding: 0px;
+        z-index: 102;
+        font-family: Verdana;
+        font-size: 10pt;
+    }
+
+    .web_dialog_title1 {
+        border-bottom: solid 2px #336699;
+        background-color: #074434;
+        padding: 4px;
+        color: White;
+        font-weight: bold;
+        font-family: Arial;
+        display: none;
+    }
+
+        .web_dialog_title1 a {
+            color: White;
+            text-decoration: none;
+        }
+
+    .align_right1 {
+        text-align: right;
+    }
+</style>
+
+<style>
+    #dialog1 {
+        /*width: 1100px;*/
+        height: 500px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        text-align: center;
+        padding: 20px;
+        opacity:10;
+    }
+</style>
+
+
+
+
+
+<div class="main-body">
+    <input type="hidden" id="hdnDayInEndTransactionId" />
+    <input type="hidden" id="hdnSearchDate" />
+    <input type="hidden" id="hdnUserId" value="@ViewBag.USER_ID"/>
+    <div class="page-wrapper">
+
+
+        @*<input type="button" id="btnShowModal" value="Modal Dialog" />
+        <input type="button" id="btnShowSimple" value="Sample Dialog" />
+        <br />
+        <br />*@
+        <div id="output"></div>
+        <div id="overlay" class="web_dialog_overlay"></div>
+        <div id="dialog" class="web_dialog" style="background: linear-gradient(45deg, #074434, #0a654d);">
+            <table style="width: 100%; border: 0px; background-color:white; padding:3px 10px" class="table table-hover">
+
+                <tr>
+                    <td width="5%"></td>
+                    <td>DAY IN AMOUNT</td>
+                    <td><label id="lblDayInAmount"></label>/-</td>
+                    <td width="5%"></td>
+                </tr>
+                <tr>
+                    <td width="5%"></td>
+                    <td>TOTAL CASH AMOUNT</td>
+                    <td><label id="lblCashAmount"></label>/-</td>
+                    <td width="5%"></td>
+                </tr>
+                <tr>
+                    <td width="5%"></td>
+                    <td>TOTAL MPESA AMOUNT</td>
+                    <td><label id="lblMPesaAmount"></label>/-</td>
+                    <td width="5%"></td>
+                </tr>
+                <tr>
+                    <td width="5%"></td>
+                    <td>TOTAL CREDIT AMOUNT</td>
+                    <td><label id="lblCreditAmount"></label>/-</td>
+                    <td width="5%"></td>
+                </tr>
+                <tr>
+                    <td width="5%"></td>
+                    <td>DAY END AMOUNT</td>
+                    <td><label id="lblDayEndAmount"></label>/-</td>
+                    <td width="5%"></td>
+                </tr>
+                <tr>
+                    <td width="5%"></td>
+                    <td>ACTION</td>
+                    <td>
+                        <select id="ddlRemark" class="form-control">
+                            <option value="3">--SELECT--</option>
+                            <option value="1" selected>APPROVE</option>
+                            <option value="0">REJECT</option>
+                        </select>
+                    </td>
+                    <td width="5%"></td>
+                </tr>
+                <tr>
+                    <td width="5%"></td>
+                    <td>REMARK</td>
+                    <td>
+                        <input type="text" class="form-control" id="txtRemark" />
+                    </td>
+                    <td width="5%"></td>
+                </tr>
+                <tr>
+                    .
+                    <td width="5%"></td>
+                    <td align="left"><h6><label id="lblDate"></label></h6></td>
+                    <td align="right">
+                        <input type="button" class="btn btn-success btn-sm" id="btnSave" value="Submit">
+                        &nbsp;&nbsp;
+                        <input type="button" class="btn btn-success btn-sm" id="btnClose" value="Cancel">
+                    </td>
+                    <td width="5%"></td>
+                </tr>
+            </table>
+
+        </div>
+
+
+
+
+        <div id="output1"></div>
+        <div id="overlay1" class="web_dialog_overlay1"></div>
+       
+        <div id="dialog1" class="web_dialog1">
+            <h6><label id="_lblDetailReport">Detail Report</label></h6>
+            <table id="tblDetailReport" style="width: 100%; border: 0px; background-color:white; padding:3px 10px" class="table table-hover">
+                <thead>
+                    <tr style="background: linear-gradient(45deg, #074434, #0a654d); color:white">
+                        <td>SL No.</td>
+                        <td>Waybill No.</td>
+                        <td>Invoice No.</td>
+                        <td>SAP No.</td>
+                        <td>Transaction No.</td>
+                        <td>Amount</td>
+                        <td>User (Cashier)</td>
+                        <td>Status</td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            @*<label id="_lblTotalAmount"></label><br /><label id="_lblNoOfTransaction"></label>*@
+            <h6><label>Summary Report</label></h6>
+            <table id="tblSummaryReport" style="width: 100%; border: 0px; background-color:white;" class="table table-hover">
+                <thead>
+                    <tr style="background: linear-gradient(45deg, #074434, #0a654d); color:white">
+                        <td>Payment Mode</td>
+                        <td>No Of Transactions</td>
+                        <td>Amount</td>
+                    </tr>
+                    <tr>
+                        <td><label>CASH</label></td>
+                        <td><label id="_lblNOTCash"></label></td>
+                        <td><label id="_lblAmtCash"></label></td>
+                    </tr>
+                    <tr>
+                        <td><label>MPESA</label></td>
+                        <td><label id="_lblNOTMPesa"></label></td>
+                        <td><label id="_lblAmtMPesa"></label></td>
+                    </tr>
+                    <tr>
+                        <td><label>CREDIT</label></td>
+                        <td><label id="_lblNOTCredit"></label></td>
+                        <td><label id="_lblAmtCredit"></label></td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <h6><label id="_lblCashReport">Cash Report</label></h6>
+            <table id="tblCashReport" style="width: 100%; border: 0px; background-color:white; padding:3px 10px; display:none;" class="table table-hover table-bordered">
+                <thead>
+                    <tr style="background: linear-gradient(45deg, #074434, #0a654d); color:white">
+                        <td>SL No.</td>
+                        <td>Waybill No.</td>
+                        <td>Invoice No.</td>
+                        <td>SAP No.</td>
+                        <td>Transaction No.</td>
+                        <td>Amount</td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <h6><label id="_lblMPesaReport">MPesa Report</label></h6>
+            <table id="tblMPesaReport" style="width: 100%; border: 0px; background-color:white; padding:3px 10px; display:none;" class="table table-hover table-bordered">
+                <thead>
+                    <tr style="background: linear-gradient(45deg, #074434, #0a654d); color:white">
+                        <td>SL No.</td>
+                        <td>Waybill No.</td>
+                        <td>Invoice No.</td>
+                        <td>SAP No.</td>
+                        <td>Transaction No.</td>
+                        <td>Amount</td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <h6><label id="_lblCreditReport">Credit Report</label></h6>
+            <table id="tblCreditReport" style="width: 100%; border: 0px; background-color:white; padding:3px 10px; display:none;" class="table table-hover table-bordered">
+                <thead>
+                    <tr style="background: linear-gradient(45deg, #074434, #0a654d); color:white">
+                        <td>SL No.</td>
+                        <td>Waybill No.</td>
+                        <td>Invoice No.</td>
+                        <td>SAP No.</td>
+                        <td>Transaction No.</td>
+                        <td>Amount</td>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div>
+                <div class="row">
+                    <div class="col-lg-12" style="text-align:right">
+                        <input type="button" id="divPopupClose" style="text-align:right; cursor:pointer;" class="btn btn-success btn-sm" value="Close">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+        <div class="page-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-block primary-breadcrumb" style="height:12px; background: linear-gradient(45deg, #074434, #0a654d);">
+                            <div class="breadcrumb-header" style="color:white">
+                                <h6>Manager Settlement</h6>
+                            </div>
+                        </div>
+                        <div class="card-block">
+
+                            @using (Html.BeginForm("Index", "Settlement", FormMethod.Post, new { enctype = "multipart/form-data", id = "frmSettlement" }))
+                            {
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <span class="pcoded-mtext fontDesign">From Date</span>
+                                            @Html.TextBoxFor(x => x.FROM_DATE, new { @class = "form-control", @id = "txtFromDate" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <span class="pcoded-mtext fontDesign">To Date</span>
+                                            @Html.TextBoxFor(x => x.TO_DATE, new { @class = "form-control", @id = "txtToDate" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12" align="left">
+                                        <input type="submit" class="btn btn-success" id="btnSubmit" value="Search">
+                                        &nbsp;<button type="button" class="btn btn-warning" id="btnReset" onclick="fnReset()"><i class="fa fa-refresh"></i> Reset</button>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if (ViewBag.LstSettlement != null)
+        {
+          <!-- Page-body start -->
+            <div class="page-body">
+                <!-- Basic table card start -->
+                <div class="card">
+                    <div class="card-block table-border-style">
+                        <div class="table-responsive">
+
+                            <table id="tblSettlement" class="table table-bordered table-hover">
+                                <thead style="background-color:#074434; color:white">
+                                    <tr style="background-color:#074434; padding:3px, 10px">
+                                        <td><b><label style="color:white">SL No.</label></b></td>
+                                        <td><b><label style="color:white">Date</label></b></td>
+                                      
+                                        <td><b><label style="color:white">Cashier Name</label></b></td>                                       
+                                        <td><b><label style="color:white">Day-In Amount</label></b></td>
+                                        <td><b><label style="color:white">Cash Amount</label></b></td>
+                                        <td><b><label style="color:white">MPesa Amount</label></b></td>
+                                        <td><b><label style="color:white">Credit Amount</label></b></td> 
+                                        <td style=" display:none;"><b><label style="color:white">Day-End Amount</label></b></td> 
+                                        <td style=" display:none;"><b><label style="color:white">Search Date</label></b></td>  
+                                        <td><b><label style="color:white">Check In Time</label></b></td>                                   
+                                        <td><b><label style="color:white">Check End Time</label></b></td>
+                                        <td><b><label style="color:white">Details</label></b></td>
+                                        <td><b><label style="color:white">Action</label></b></td>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{ int Count = 0;}
+                                    @foreach (var settlement in ViewBag.LstSettlement)
+                                    {
+                                        Count = Count + 1;
+                                        <tr style="padding:3px, 10px">
+                                            <td style="padding:3px, 10px">@Count</td>
+                                            <td><label id="lblDate_@settlement.DAY_IN_END_TRANSACTION_ID">@settlement.DATE</label></td>
+                                            
+                                            <td>@settlement.CASHIER_NAME</td>                                                                                    
+                                            <td><label id="lblDayInAmount_@settlement.DAY_IN_END_TRANSACTION_ID">@settlement.TOTAL_DAY_IN_AMOUNT</label></td>
+                                            <td><label id="lblCashAmount_@settlement.DAY_IN_END_TRANSACTION_ID">@settlement.TOTAL_CASH_AMOUNT</label></td>
+                                            <td><label id="lblMPesaAmount_@settlement.DAY_IN_END_TRANSACTION_ID">@settlement.TOTAL_MPESA_AMOUNT</label></td>
+                                            <td><label id="lblCreditAmount_@settlement.DAY_IN_END_TRANSACTION_ID">@settlement.TOTAL_CREDIT_AMOUNT</label></td> 
+                                            <td style=" display:none;">
+                                                <label id="lblDayEndAmount_@settlement.DAY_IN_END_TRANSACTION_ID">@settlement.TOTAL_DAY_END_AMOUNT</label>
+                                            </td>   
+                                            <td style=" display:none;">
+                                                <label id="lblSearchDate_@settlement.DAY_IN_END_TRANSACTION_ID">@settlement.SEARCH_DATE</label>
+                                            </td>                                           
+                                            <td><label id="lblDayInTime_@settlement.DAY_IN_END_TRANSACTION_ID">@settlement.DAY_IN_TIME</label></td>  
+                                            <td><label id="lblDayEndTime_@settlement.DAY_IN_END_TRANSACTION_ID">@settlement.DAY_END_TIME</label></td>
+                                            <td>
+                                                <span style='cursor:pointer;' title='View' onclick="fnView('@settlement.DAY_IN_END_TRANSACTION_ID', '@settlement.CASHIER_ID')"><i class='ti-eye'></i></span>
+
+                                            </td>
+                                            <td>
+                                                &nbsp;&nbsp;&nbsp;
+                                                <span style='cursor:pointer;' title='Action' onclick="fnAction('@settlement.DAY_IN_END_TRANSACTION_ID')"><i class='ti-pencil'></i></span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+
+                        </div>
+                    </div>
+                </div>
+                <!-- Basic table card end -->
+            </div>
+        <!-- Page-body end -->
+        }
+
+    </div>
+</div>
+<div id="loader" style="text-align:center; padding-top:20%;">
+    <span style="font-size:22px;color:#dce3de;">Please wait data is processing.....</span>
+</div>
+<div id="styleSelector">
+
+</div>
+<script type="text/javascript" src="~/Assets/js/jquery/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#txtFromDate, #txtToDate').datepicker({ dateFormat: 'dd-mm-yy' });
+        const dataTable = new simpleDatatables.DataTable("#tblSettlement");
+
+    });
+
+    function fnReset() {
+        $('#txtFromDate, #txtToDate').val('');
+    }
+
+    function fnAction(Id)
+    {
+        $("#hdnDayInEndTransactionId").val(Id);
+        $("#lblDayInAmount").text($("#lblDayInAmount_" + Id).text());
+        $("#lblCashAmount").text($("#lblCashAmount_" + Id).text());
+        $("#lblMPesaAmount").text($("#lblMPesaAmount_" + Id).text());
+        $("#lblCreditAmount").text($("#lblCreditAmount_" + Id).text());
+        $("#lblDayEndAmount").text($("#lblDayEndAmount_" + Id).text());
+        $("#lblDate").text($("#lblDate_" + Id).text());
+
+        $("#overlay").show();
+        $("#dialog").fadeIn(500);
+    }
+
+    function fnView(Id, UserId) {
+        $("#loader").show();
+        $("#tblDetailReport tbody, #tblCashReport tbody, #_lblMPesaReport tbody, #tblCreditReport tbody").empty();
+        $("#_lblCashReport, #_lblMPesaReport, #_lblCreditReport").hide();
+        $("#hdnDayInEndTransactionId").val(Id);
+        $("#hdnSearchDate").val($("#lblSearchDate_" + Id).text());
+        
+        var SettlementModel = {
+            USER_ID:UserId,
+            SEARCH_DATE: $("#lblSearchDate_" + Id).text()
+        }
+        var rowDetailReport = ''; var rowCashReport = ''; var rowMPesaReport = ''; var rowCreditReport='';
+        $.ajax({
+            type: "POST",
+            url: "/Settlement/LstDaySettlement",
+            data: JSON.stringify(SettlementModel),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                console.log(data);
+                if (data.length > 0 || data != null)
+                {
+                    var SETTLEMENT_DETAIL = data.SETTLEMENT_DETAIL;
+                    $.each(SETTLEMENT_DETAIL, function (index, item) {
+                        rowDetailReport += "<tr>" +
+                                                "<td>" + (index+1) + "</td>" +
+                                                "<td>" + item.WAYBILL_NUMBER + "</td>" +
+                                                "<td>" + item.INVOICE_NUMBER + "</td>" +
+                                                "<td>" + item.SAP_NUMBER + "</td>" +
+                                                "<td>" + item.TRANSACTION_ID + "</td>" +
+                                                "<td>" + item.TOTAL_AMOUNT + "</td>" +
+                                                "<td>" + item.CASHIER_NAME + "</td>" +
+                                                "<td>Completed</td>" +
+                                           "</tr>";
+                    });
+                    rowDetailReport += "<tr><td></td><td><b>Total Amount</b></td><td><b>" + 'Rs. ' + data.TOTAL_AMOUNT + '/-' + "</b></td><td colspan='5'></td></tr>";
+                    rowDetailReport += "<tr><td></td><td><b>No Of Transactions</b></td><td><b>" + data.NO_OF_TRANSACTIONS + "</b></td><td colspan='5'></td></tr>";
+                    $("#tblDetailReport tbody").append(rowDetailReport);
+                  
+
+                    var SUMMARY_REPORT = data.SUMMARY_REPORT;
+                    $("#_lblNOTCash").text(SUMMARY_REPORT[0].NO_OF_CASH_TRANSACTION);
+                    $("#_lblNOTMPesa").text(SUMMARY_REPORT[0].NO_OF_MPESA_TRANSACTION);
+                    $("#_lblNOTCredit").text(SUMMARY_REPORT[0].NO_OF_CREDIT_TRANSACTION);
+                    $("#_lblAmtCash").text(SUMMARY_REPORT[0].TOTAL_CASH_AMOUNT);
+                    $("#_lblAmtMPesa").text(SUMMARY_REPORT[0].TOTAL_MPESA_AMOUNT);
+                    $("#_lblAmtCredit").text(SUMMARY_REPORT[0].TOTAL_CREDIT_AMOUNT);
+
+                    var CASH_DETAIL = data.CASH_DETAIL;
+                    if (CASH_DETAIL.length > 0)
+                    {
+                        $.each(CASH_DETAIL, function (index, item) {
+                            rowCashReport += "<tr>" +
+                                                    "<td>" + (index + 1) + "</td>" +
+                                                    "<td>" + item.WAYBILL_NUMBER + "</td>" +
+                                                    "<td>" + item.INVOICE_NUMBER + "</td>" +
+                                                    "<td>" + item.SAP_NUMBER + "</td>" +
+                                                    "<td>" + item.TRANSACTION_ID + "</td>" +
+                                                    "<td>" + item.CASH_AMOUNT + "</td>" +
+                                               "</tr>";
+                        });
+                        $("#tblCashReport tbody").show().append(rowCashReport);
+                        $("#tblCashReport, #_lblCashReport").show();
+                    }
+
+                    var MPESA_DETAIL = data.MPESA_DETAIL;
+                    if (MPESA_DETAIL.length > 0) {
+                        $.each(MPESA_DETAIL, function (index, item) {
+                            rowMPesaReport += "<tr>" +
+                                                    "<td>" + (index + 1) + "</td>" +
+                                                    "<td>" + item.WAYBILL_NUMBER + "</td>" +
+                                                    "<td>" + item.INVOICE_NUMBER + "</td>" +
+                                                    "<td>" + item.SAP_NUMBER + "</td>" +
+                                                    "<td>" + item.TRANSACTION_ID + "</td>" +
+                                                    "<td>" + item.MPESA_AMOUNT + "</td>" +
+                                               "</tr>";
+                        });
+                        $("#tblMPesaReport tbody").show().append(rowMPesaReport);
+                        $("#tblMPesaReport, #_lblMPesaReport").show();
+                    }
+
+                    var CREDIT_DETAIL = data.CREDIT_DETAIL;
+                    if (CREDIT_DETAIL.length > 0) {
+                        $.each(CREDIT_DETAIL, function (index, item) {
+                            rowCreditReport += "<tr>" +
+                                                    "<td>" + (index + 1) + "</td>" +
+                                                    "<td>" + item.WAYBILL_NUMBER + "</td>" +
+                                                    "<td>" + item.INVOICE_NUMBER + "</td>" +
+                                                    "<td>" + item.SAP_NUMBER + "</td>" +
+                                                    "<td>" + item.TRANSACTION_ID + "</td>" +
+                                                    "<td>" + item.CREDIT_AMOUNT + "</td>" +
+                                               "</tr>";
+                        });
+                        $("#tblCreditReport tbody").show().append(rowCreditReport);
+                        $("#tblCreditReport, #_lblCreditReport").show();
+                        $("#loader").hide();
+                    }
+                    $("#loader").hide();
+                }
+            },
+            error: function (response) {
+                alert("User not added.");
+                $("#loader").hide();
+            }
+        });
+
+        $("#overlay1").show();
+        $("#dialog1").fadeIn(500);
+    }
+</script>
+<script type="text/javascript">
+
+    $(document).ready(function () {      
+
+        $("#btnClose, #divPopupClose").click(function (e) {
+            HideDialog();
+            e.preventDefault();
+        });
+
+    });
+
+    function ValidateInput() {
+        var IsValid = true;
+        if ($("#txtFromDate") == null || $("#txtFromDate") == "") {
+            alert('From date is required.');
+            $("#txtFromDate").focus();
+            IsValid = false;
+        }
+        if ($("#txtToDate") == null || $("#txtToDate") == "") {
+            alert('To date is required.');
+            $("#txtToDate").focus();
+            IsValid = false;
+        }
+        return false;
+    }
+
+    function ShowDialog(modal) {
+        $("#overlay").show();
+        $("#dialog").fadeIn(300);
+
+        if (modal) {
+            $("#overlay").unbind("click");
+        }
+        else {
+            $("#overlay").click(function (e) {
+                HideDialog();
+            });
+        }
+    }
+
+    function HideDialog() {
+        $("#overlay, #overlay1").hide();
+        $("#dialog, #dialog1").fadeOut(300);
+    }
+
+
+    $("#btnSave").click(function () {
+
+        if (parseInt($('#ddlRemark').val()) == 3) {
+            $('#ddlRemark').focus();
+            return false;
+        }
+
+        if (parseInt($('#ddlRemark').val()) == 0) {
+            if ($('#txtRemark').val() == '' || $('#txtRemark').val() == null) {
+                $('#txtRemark').focus();
+                return false;
+            }
+        }       
+
+        var SettlementModel =
+         {
+             "DAY_IN_END_TRANSACTION_ID": $("#hdnDayInEndTransactionId").val(),
+             "MANAGER_ID":  $("#hdnUserId").val(),
+             "IS_MANAGER_APPROVED": $("#ddlRemark").val(),
+             "MANAGER_REMARK": $("#txtRemark").val(),
+         }
+        $.ajax({
+            type: "POST",
+            url: "/Settlement/Approval",
+            data: JSON.stringify(SettlementModel),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                if (parseInt(result) > 0) {
+                    alert("Manager response added.");
+                    window.location.reload();
+                }
+                else {
+                    alert("Manager response not added.");
+                    return false;
+                }
+            },
+            error: function (response) {
+                alert("User not added.");
+                spinner.hide();
+            }
+        });
+    });
+</script>
+
+
+
+
+

@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <div id="Grid">
+        <table style='width:192px; background-color:white; font-size:8px' cellpadding='2' cellspacing='2'>
+            <tbody>
+                <tr><td colspan='2' align='center'><label style='font-size:9px; font-weight:bold'>FARGO COURIER LTD</label></td></tr>
+                <tr><td colspan='2' align='center'><label style='font-size:7px;'>P.O. BOX 43370-00100</label></td></tr>
+                <tr><td colspan='2' align='center'><label style='font-size:7px;'>NAIROBI</label></td></tr>
+                <tr><td colspan='2' align='center'><label style='font-size:7px;'>TEL: +25470307700</label></td></tr>
+                <tr><td colspan='2' align='center'><label style='font-size:7px;'>PIN: P051151486V</label></td></tr>
+                
+                <tr><td colspan='2' align='center'><label style='font-size:8px'>----START OF FISCAL RECEIPT----</label></td></tr>
+                <tr><td width='40%'>&nbsp;&nbsp;&nbsp;Trans No:</td><td width='60%'>{TRANSACTION_ID}</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;Date:</td><td>{TRANSACTION_DATE}</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;Transaction By:</td><td>{TRANSACTION_BY}</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;Customer Pin:</td><td>{CUSTOMER_PIN}</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;Customer Mobile:</td><td>{CUSTOMER_MOBILE}</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;Payment By:</td><td><label style='font-size:6px'>{PAYMENT_BY}</label></td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;Reference:</td><td><label id='lblReference'>Retail Sale</label></td></tr>
+                {WAYBILL}
+                <tr><td colspan='2' align='center'><label style='font-size:8px'>-----PAYMENT DETAILS-----</label></td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;Invoice Amount:</td><td>{INVOICE_AMOUNT}</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;VAT {TAX_RATE}%:</td><td>{TAX_AMOUNT}</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;Amount Due:</td><td>{TOTAL_AMOUNT}</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;Total Paid:</td><td>{TOTAL_AMOUNT}</td></tr>
+                <tr><td colspan='2' align='center'>_____________________________________</td></tr>
+                <tr><td>&nbsp;&nbsp;&nbsp;CU No:</td><td><label style='font-size:7px'>{CU_NUMBER}</label></td></tr>
+                <tr><td colspan='2'>&nbsp;&nbsp;&nbsp;CU INVOICE NO:</td></tr>
+                <tr><td colspan='2'>&nbsp;&nbsp;&nbsp;<label style='font-size:7px'>{FISCAL_TRANSACTION_NUMBER}</label></td></tr>
+
+                 <tr><td colspan='2' align='center'>&nbsp;&nbsp;&nbsp;<img height='100' alt="NA" width='100' src='{QR_PATH}' /></td></tr>
+                <tr><td colspan='2' align='center'><label style='font-size:8px'>--END OF FISCAL RECEIPT--</label></td></tr>
+         
+            </tbody>
+        </table>
+
+    </div>
+</body>
+</html>

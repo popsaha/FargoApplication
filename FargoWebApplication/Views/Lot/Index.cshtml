@@ -1,0 +1,496 @@
+﻿@{
+    ViewBag.Title = "Store-Lot Mapping";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Fargo_Models.LotModel
+@using Fargo_Models;
+@{
+    List<LotModel> LstLotes = null;
+    if (ViewBag.LstLotes != null)
+    {
+        LstLotes = ViewBag.LstLotes;
+    }
+}
+<style>
+    .fontDesign {
+        color: #666666;
+        font-weight: bold;
+        font-size: 13px;
+    }
+    .btn {
+        background-color: #0a654d;
+        border-color: #0a654d;
+    }
+
+    .btn:hover {
+        background-color: #074434;
+        border-color: #074434;
+    }
+
+    .btn:active {
+        background-color: #0a654d !important;
+        border-color: #0a654d;
+    }
+
+    .btn:focus {
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        color: #fff;
+        background-color: #074434;
+    }
+    .table td {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+@if (ViewBag.Message != null)
+{
+    <script>alert('@ViewBag.Message');</script>
+}
+
+
+
+<style type="text/css">
+    #loader {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: none;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-color: white;
+        z-index: 10000;
+    }
+</style>
+<div class="main-body">
+    <div class="page-wrapper">
+
+       
+        <div class="page-body">
+            <label id="divStore" style="display:none">
+                <select class="form-control" name="Store" style="width:150px">
+                    <option value="0">--SELECT--</option>
+                    @if (ViewBag.LstStores != null)
+                    {
+                        foreach (var store in ViewBag.LstStores)
+                        {
+                           <option value="@store.STORE_ID">@store.STORE_NAME</option>
+                        }
+                    }
+                </select>
+                <input type="hidden" id="hdnLotId">
+            </label>
+            <label id="divType" style="display:none">
+                <select name="ddlType" class="form-control">
+                    <option value="FCL">FCL</option>
+                    <option value="FCLIN">FCLIN</option>
+                    <option value="FCLCA">FCLCA</option>
+                </select>
+            </label>
+
+            <div class="card">
+                <div class="card-block primary-breadcrumb" style="height:12px; background-color:#074434">
+                    <div class="breadcrumb-header" style="color:white">
+                        <h6>Store-Slot Mapping&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;&nbsp;*All fields are mondatory</h6>
+                    </div>
+                </div>
+                <div class="card-block table-border-style">
+                   
+                    <div title="Add New Row" style="text-align:right;">
+                        <label style=" cursor:pointer" id="lblAddNewRow" onclick="fnAddNewRow()"><i class="fa fa-plus"></i> Add New Row</label>
+                    </div>
+                  
+                        <div class="table-responsive">
+                            <table id="tblStoreLotMapping" class="table table-bordered table-hover">
+                                <thead style="background: linear-gradient(45deg, #074434, #0a654d); color:white">
+                                    <tr>
+                                        <td><b><label style="color:white">SL No.</label></b></td>
+                                        <td><b><label style="color:white">Store Name</label></b></td>
+                                        <td><b><label style="color:white">Lot Name</label></b></td>
+                                        <td><b><label style="color:white">Waybill Prefix</label></b></td>
+                                        <td><b><label style="color:white">Start Waybill No.</label></b></td>
+                                        <td><b><label style="color:white">End Waybill No.</label></b></td>
+                                        <td><b><label style="color:white">Action</label></b></td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr id="row_1">
+                                        <td>
+                                            <label class='clsTableRowNumber'>1</label>
+                                        </td>
+                                        <td>
+                                            <select class="form-control" name="Store" id="ddlStore" style="width:150px">
+                                                <option value="0">--SELECT--</option>
+                                                @if (ViewBag.LstStores != null)
+                                                {
+                                                    foreach (var store in ViewBag.LstStores)
+                                                    {
+                                                        <option value="@store.STORE_ID">@store.STORE_NAME</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" name="LotName" id="txtLotName">
+                                        </td>          
+                                        <td>
+                                            <select id="ddlType" name="LotType" class="form-control">
+                                                <option value="FCL">FCL</option>
+                                                <option value="FCLIN">FCLIN</option>
+                                                <option value="FCLCA">FCLCA</option>
+                                            </select>
+                                        </td>                                
+                                        <td>
+                                            <input type="number" class="form-control inputNumber" name="StartWaybillNo" value="0" id="txtStartWaybillNo" maxlength="8">
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control inputNumber" name="EndWaybillNo" value="0" id="txtEndWaybillNo" maxlength="8">
+                                        </td>
+                                     <td>
+                                         <span style='cursor:pointer;' title='Remove'><i class='ti-close'></i></span>
+                                     </td>
+                                    </tr>
+
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="7" align="center">
+                                            <input type="button" class="btn btn-success btn-sm" id="btnSubmit" value="Submit" onclick="fnSubmitLotInfo()" />
+                                            <input type="button" class="btn btn-danger btn-sm" id="btnUpdate" style="display:none" value="Update" onclick="fnUpdateLotInfo()" />
+                                                &nbsp; &nbsp;
+                                            <input type="button" class="btn btn-success btn-sm" id="btnCancel" style="display:none" value="Cancel" onclick="fnCancel()" />
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+            @if (LstLotes != null)
+            { 
+            <div class="card" id="divLotData">               
+                <div class="card-block table-border-style">
+                    <div class="table-responsive">
+                        <table id="tblLotStoreLotMapping" class="table table-bordered table-hover">
+                            <thead style="background: linear-gradient(45deg, #074434, #0a654d); color:white">
+                                <tr>
+                                    <td><b><label style="color:white">SL No.</label></b></td>
+                                    <td><b><label style="color:white">Store Name</label></b></td>
+                                    <td><b><label style="color:white">Lot Name</label></b></td>
+                                    <td><b><label style="color:white">Start Waybill No.</label></b></td>
+                                    <td><b><label style="color:white">End Waybill No.</label></b></td>
+                                    <td><b><label style="color:white">Action</label></b></td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ int Count = 0;}
+                                @foreach (var lot in LstLotes)
+                                {
+                                    Count = Count + 1;
+                                     <tr id="row_@lot.LOT_ID">
+                                        <td>
+                                            <label class="clslblLotName">@Count</label>
+                                        </td>
+                                        <td><label id="lblStoreId_@lot.LOT_ID" style="display:none">@lot.STORE_ID</label>@lot.STORE_NAME</td>
+                                        <td><label class="_clslblLotName" id="lblLotName_@lot.LOT_ID">@lot.LOT_NAME</label></td>
+                                        <td><label id="lblFromTrackingNumber_@lot.LOT_ID">@lot.FROM_TRACKING_NUMBER</label></td>
+                                        <td><label id="lblToTrackingNumber_@lot.LOT_ID">@lot.TO_TRACKING_NUMBER</label></td>
+                                        <td>
+                                            <span style='cursor:pointer;' title='Edit' onclick="fnEdit('@lot.LOT_ID')"><i class='ti-pencil'></i></span>
+                                            &nbsp;&nbsp;&nbsp;
+                                            <span style='cursor:pointer;' title='Delete' onclick="fnDelete('@lot.LOT_ID')"><i class='ti-trash'></i></span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+            }
+            <!-- Basic table card end -->
+        </div>
+        <!-- Page-body end -->
+    </div>
+</div>
+<div id="loader" style="text-align:center; padding-top:20%;">
+    <span style="font-size:22px;color:#dce3de;">Please wait...</span>
+</div>
+<div id="styleSelector">
+
+</div>
+<script type="text/javascript" src="~/Assets/js/jquery/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var arrListStore = [];
+        const dataTable = new simpleDatatables.DataTable("#tblLotStoreLotMapping");
+        fnValidateNumbers();
+        Remove();
+    });
+
+    function fnValidateNumbers() {
+        $('.inputNumber').keypress(function (e) {
+            var charCode = (e.which) ? e.which : event.keyCode
+            if (String.fromCharCode(charCode).match(/[^0-9]/g))
+                return false;
+        });
+    }
+
+    function fnGetTableRow()
+    {
+        var tableRow = '';
+        var RowNo = $("#tblStoreLotMapping tbody tr").length;
+        var tableRow = "<tr id='row_" + (RowNo + 1) + "'>" +
+              "<td><label class='clsTableRowNumber'>1</label></td>" +
+              "<td>" + $('#divStore').html() + "</td>" +
+              "<td><input type='text' class='form-control' name='LotName'></td>" +
+              "<td>" + $('#divType').html() + "</td>" +
+              "<td> <input type='number' class='form-control inputNumber' name='StartWaybillNo'  value='0'  maxlength='8'></td>" +
+              "<td> <input type='number' class='form-control inputNumber' name='EndWaybillNo'  value='0'  maxlength='8'></td>" +
+                                            "<td>" +
+                                                "<span onclick='fnRemove(" + (RowNo + 1) + ")' style='cursor:pointer;' title='Remove'><i class='ti-close'></i></span>" +
+                                            "</td>" +
+                                        "</tr>";
+
+        return tableRow;
+    }
+
+    function fnAddNewRow() {
+
+        var tableRow = fnGetTableRow();
+        $("#tblStoreLotMapping tbody").append(tableRow);
+        fnTableRowNumber();
+    }
+
+        function fnTableRowNumber()
+        {
+            var tableRow = $("#tblStoreLotMapping tbody tr");
+            $.each(tableRow, function (index, item) {
+                $(this).find('.clsTableRowNumber').text((index+1));
+            });
+        }
+
+        function fnLotTableRowNumber() {
+            var tableRow = $("#tblLotStoreLotMapping tbody tr");
+            $.each(tableRow, function (index, item) {
+                $(this).find('.clsLotRowNumber').text((index + 1));
+            });
+        }
+
+        function fnRemove(RowNo)
+        {
+            $('#row_' + RowNo).closest("tr").remove();
+            fnTableRowNumber();
+        }
+
+        function IsDuplicateLotFound()
+        {
+            var IsDuplicateLotFound = false;
+            var arrLotListStore = [];
+            $('input[name=LotName]').each(function (index) {
+                arrLotListStore.push($(this).val());
+            });
+            $('._clslblLotName').each(function (index) {
+                arrLotListStore.push($(this).text());
+            });
+            var sortedArrayData = arrLotListStore.sort();
+            var arrDuplicateData = [];
+            for (var i = 0; i < sortedArrayData.length - 1; i++) {
+                if (sortedArrayData[i + 1] == sortedArrayData[i]) {
+                    arrDuplicateData.push(sortedArrayData[i]);
+                }
+            }
+            if (arrDuplicateData.length > 0)
+            {
+                IsDuplicateLotFound = true;
+            }
+            return IsDuplicateLotFound;
+        }
+
+
+        function fnSubmitLotInfo()
+        {
+           
+            if (!IsDuplicateLotFound()) {
+                $('#loader').show();
+
+                var arrListStore = [];
+                var tableRow = $("#tblStoreLotMapping tbody tr");
+                $.each(tableRow, function (index, item) {
+                    var STORE_ID = $(this).find("select[name='Store']").val();
+                    var LOT_NAME = $(this).find("input[name='LotName']").val();
+                    var FROM_TRACKING_NUMBER = $(this).find("select[name='LotType']").val() + '' + $(this).find("input[name='StartWaybillNo']").val();
+                    var TO_TRACKING_NUMBER = $(this).find("select[name='LotType']").val() + '' + $(this).find("input[name='EndWaybillNo']").val();
+                    arrListStore.push({
+                        STORE_ID: STORE_ID,
+                        LOT_NAME: LOT_NAME,
+                        FROM_TRACKING_NUMBER: FROM_TRACKING_NUMBER,
+                        TO_TRACKING_NUMBER: TO_TRACKING_NUMBER,
+                    });
+                });
+
+                if (arrListStore.length > 0) {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SubmitLotInfo", "Lot")',
+                        data: JSON.stringify(arrListStore),
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (result) {
+                            if (result > 0) {
+                                $('#loader').hide();
+                                alert('Lot information has been saved.');
+                                window.location.reload();
+                            }
+                            else {
+                                $('#loader').hide();
+                                alert('Please enter the valid data to proceed.');
+                            }
+                        },
+                        error: function () {
+                            alert("Error while inserting data."); $('#loader').hide();
+                        }
+                    });
+                }
+                else { alert("Please select data to proceed."); $('#loader').hide(); }
+            }
+            else {
+                alert('Duplicate lot name found.');
+            }
+        }
+
+        function fnDelete(LOT_ID) {
+            alert(LOT_ID);
+        }
+
+        function fnEdit(LOT_ID)
+        {
+            var initCode = ''; var initDigit = '';
+            let FromTrackingNumber = $('#lblFromTrackingNumber_' + LOT_ID).text();
+            if (FromTrackingNumber.includes("FCLIN") || FromTrackingNumber.includes("FCLCA")) {
+                initCode = FromTrackingNumber.substring(0, 5);
+                initDigit = FromTrackingNumber.substring(5, 13);
+            }
+            else if (FromTrackingNumber.includes("FCL")) {
+                initCode = FromTrackingNumber.substring(0, 3);
+                initDigit = FromTrackingNumber.substring(3, 11);
+            }
+            else {
+                initCode = '0';
+                initDigit = $('#lblFromTrackingNumber_' + LOT_ID).text();
+            }
+            $('#ddlType').val(initCode);
+            $("#txtStartWaybillNo").val(initDigit);
+            let EndWaybillNo = $('#lblToTrackingNumber_' + LOT_ID).text();
+            if (EndWaybillNo.includes("FCLIN") || EndWaybillNo.includes("FCLCA")) {
+                initCode = EndWaybillNo.substring(0, 5);
+                initDigit = EndWaybillNo.substring(5, 13);
+            }
+            else if (EndWaybillNo.includes("FCL")) {
+                initCode = EndWaybillNo.substring(0, 3);
+                initDigit = EndWaybillNo.substring(3, 11);
+            }
+            else {
+                initCode = '0';
+                initDigit = $('#lblEndTrackingNumber_' + LOT_ID).text();
+            }
+            $("#txtEndWaybillNo").val(initDigit);
+
+            $("#ddlStore").val($('#lblStoreId_' + LOT_ID).text());
+            $("#txtLotName").val($('#lblLotName_' + LOT_ID).text());
+            $("#hdnLotId").val(LOT_ID);
+            $("#btnSubmit").hide();
+            $("#btnUpdate, #btnCancel").show();
+            
+        }
+
+        function fnCancel()
+        {
+            $("#btnSubmit").show();
+            $("#btnUpdate, #btnCancel").hide();
+            $("#ddlStore, #txtStartWaybillNo, #txtEndWaybillNo").val('0');
+            $("#txtLotName").val('');
+        }
+
+        function fnUpdateLotInfo(LOT_ID) {
+            $('#loader').show();
+            var arrListStore = [];
+            arrListStore.push({
+                LOT_ID: $("#hdnLotId").val(),
+                STORE_ID: $("#ddlStore").val(),
+                LOT_NAME: $("#txtLotName").val(),
+                FROM_TRACKING_NUMBER: $("#ddlType").val() + '' + $("#txtStartWaybillNo").val(),
+                TO_TRACKING_NUMBER: $("#ddlType").val() + '' + $("#txtEndWaybillNo").val(),
+            });
+            if (arrListStore.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UpdateLotInfo", "Lot")',
+                    data: JSON.stringify(arrListStore),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        if (result > 0) {
+                            $('#loader').hide();
+                            alert('Lot information has been updated.');
+                            window.location.reload();
+                        }
+                    },
+                    error: function () {
+                        alert("Error while inserting data."); $('#loader').hide();
+                    }
+                });
+            }
+            else { alert("Please select data to proceed."); $('#loader').hide(); }
+        }
+
+
+
+    function fnDelete(LOT_ID) {
+        
+       
+        if (parseInt(LOT_ID) > 0) {
+            $('#loader').show();
+            $.ajax({
+                type: "POST",
+                url: "/Lot/DeleteLotInfo?LOT_ID=" + LOT_ID,
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (result) {
+                    if (result > 0) {
+                        $('#row_' + LOT_ID).closest("tr").remove();
+                        fnLotTableRowNumber();
+                        var rowCount = $("#tblLotStoreLotMapping tbody tr").length;
+                        if (parseInt(rowCount) < 1) {
+                            $('#divLotData').hide();
+                        }
+
+                        $('#loader').hide();
+                        alert('Data successfully deleted.');
+
+                        
+                        
+                    }
+                },
+                error: function () {
+                    alert("Error while inserting data."); $('#loader').hide();
+                }
+            });
+        }
+        else { alert("Please select row to proceed."); $('#loader').hide(); }
+    }
+    
+</script>
+
+
+
+

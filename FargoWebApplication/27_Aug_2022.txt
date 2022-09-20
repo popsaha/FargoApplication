@@ -1,0 +1,19 @@
+-----------Exception Details on  8/27/2022 2:47:28 AM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 8/27/2022 2:47:28 AM
+
+Error Line No : line 120
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Incorrect syntax near ')'.
+Incorrect syntax near the keyword 'ELSE'.
+
+ Error Page Url: https://fargo.speed18.com/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+

@@ -1,0 +1,278 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Fargo_Models.SlotModel
+<style>
+    .fontDesign {
+        color: #666666;
+        font-weight: bold;
+        font-size: 13px;
+    }
+</style>
+
+<style type="text/css">
+    #loader {
+        background-color: transparent;
+        background: transparent;
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: none;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-color: white;
+        z-index: 10000;
+    }
+
+    .btn {
+        background-color: #0a654d;
+        border-color: #0a654d;
+    }
+
+        .btn:hover {
+            background-color: #074434;
+            border-color: #074434;
+        }
+
+        .btn:active {
+            background-color: #0a654d !important;
+            border-color: #0a654d;
+        }
+
+        .btn:focus {
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            color: #fff;
+            background-color: #074434;
+        }
+</style>
+
+@if (ViewBag.Message != null)
+{
+    <script>alert('@ViewBag.Message');</script>
+}
+
+<div class="main-body">
+    <div class="page-wrapper">
+
+
+        <div class="page-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-block primary-breadcrumb" style="height:12px; background: linear-gradient(45deg, #074434, #0a654d);">
+                            <div class="breadcrumb-header">
+                                <h6><label style="color:white">Lot Master</label></h6>
+                            </div>
+                        </div>
+                        <div class="card-block">
+
+                            @using (Html.BeginForm("Slot", "Store", FormMethod.Post, new { enctype = "multipart/form-data", id = "frmStored" }))
+                            {
+                                @Html.HiddenFor(x => x.SLOT_ID, new { @id = "hdnSlotId" });
+                                <input type="hidden" id="hdStoreId" />
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <span class="pcoded-mtext fontDesign">Store Name</span>
+                                            @Html.DropDownList("STORE_ID", ViewData["LstStores"] as IEnumerable<SelectListItem>, "--SELECT--", new { @class = "form-control select2", @id = "ddlStore" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <span class="pcoded-mtext fontDesign">Lot Name</span>
+                                            @Html.TextBoxFor(x => x.SLOT_NAME, new { @class = "form-control", @id = "txtSlot" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <span class="pcoded-mtext fontDesign">Lot Code</span>
+                                            @Html.TextBoxFor(x => x.SLOT_CODE, new { @class = "form-control", @id = "txtSlotCode" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <span class="pcoded-mtext fontDesign">Description</span>
+                                            @Html.TextBoxFor(x => x.DESCRIPTION, new { @class = "form-control", @id = "txtDescription" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12" align="left">
+                                        <div>
+                                            <input type="submit" class="btn btn-success" id="btnSubmit" value="Submit" name="Submit" onclick="return ValidateInputs();">
+                                            &nbsp;
+                                            <input type="submit" class="btn btn-primary" id="btnUpdate" value="Update" name="Update" onclick="return ValidateInputs();">
+                                            &nbsp;
+                                            <button type="button" class="btn btn-warning" id="btnReset" onclick="Reset()"><i class="fa fa-refresh"></i> Reset</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if (ViewBag.LstSlotes != null)
+        {
+         <!-- Page-body start -->
+            <div class="page-body">
+                <!-- Basic table card start -->
+                <div class="card">
+                    <div class="card-block table-border-style">
+                        <div class="table-responsive">
+                            <table id="tblSlot" class="table table-hover">
+                                <thead style="background: linear-gradient(45deg, #074434, #0a654d); color:white">
+                                    <tr>
+                                        <td><b><label style="color:white">SL No.</label></b></td>
+                                        <td><b><label style="color:white">Store Name</label></b></td>
+                                        <td><b><label style="color:white">Lot Name</label></b></td>
+                                        <td><b><label style="color:white">Lot Code</label></b></td>
+                                        <td><b><label style="color:white">Description</label></b></td>
+                                        <td><b><label style="color:white">Action</label></b></td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{ int Count = 0;}
+                                    @foreach (var slot in ViewBag.LstSlotes)
+                                    {
+                                        Count = Count + 1;
+                                        <tr id="tblRow_@slot.SLOT_ID">
+                                            <td>@Count</td>
+                                            <td>@slot.STORE_NAME</td>
+                                            <td><label class="clsSlotName">@slot.SLOT_NAME</label></td>
+                                            <td>@slot.SLOT_CODE</td>
+                                            <td>@slot.DESCRIPTION</td>
+                                            <td><span onclick="fnEdit('@slot.SLOT_ID')" style="cursor:pointer" title="Edit"><i class="fa fa-pencil"></i></span>&nbsp;&nbsp;&nbsp;<span onclick="fnDelete('@slot.SLOT_ID')" style="cursor:pointer" title="Delete"><i class="fa fa-trash"></i></span></td>
+
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- Basic table card end -->
+            </div>
+        <!-- Page-body end -->
+        }
+       
+    </div>
+</div>
+
+<div id="loader" style="text-align:center; padding-top:20%;">
+    <span style="font-size:22px;color:#dce3de;">Please wait...</span>
+</div>
+<div id="styleSelector"></div>
+<script type="text/javascript" src="~/Assets/js/jquery/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        fnReset();
+        const dataTable = new simpleDatatables.DataTable("#tblSlot");
+
+    });
+
+    function ValidateInputs() {
+        var IsValid = true;
+        var ddlStore = $('#ddlStore').val();
+        var txtSlot = $('#txtSlot').val();
+        var txtSlotCode = $('#txtSlotCode').val();
+        var txtDescription = $('#txtDescription').val();
+        if ($('#ddlStore').val() < 1) {
+            alert("Store is required.");
+            return false;
+        }
+        if ($('#txtSlot').val() == "") {
+            alert("Slot name is required.");
+            return false;
+        }
+        if ($('#txtSlotCode').val() == "") {
+            alert("Slot code is required.");
+            return false;
+        }
+        if ($('#txtDescription').val() == "") {
+            alert("Description is required.");
+            return false;
+        }
+
+        $(".clsSlotName").each(function () {
+            if ($(this).text() == $('#txtSlot').val()) {
+                alert("Duplicate slot name found !");                 
+                $('#txtSlot').focus();
+                IsValid = false;
+                return;
+            }
+        });
+        $(".clsSlotCode").each(function () {
+            if ($(this).text() == $('#txtSlotCode').val()) {
+                alert("Duplicate slot code found !");
+                $('#txtSlotCode').focus();
+                IsValid = false;
+                return;
+            }
+        });
+        return IsValid;
+    }
+
+    function fnEdit(SLOT_ID) {
+        $('#loader').show();
+        $.ajax({
+            type: "POST",
+            url: "/Store/Modify?SLOT_ID=" + SLOT_ID,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                $('#hdnSlotId').val(data.SLOT_ID);
+                $('#ddlStore').val(data.STORE_ID);
+                $('#txtSlot').val(data.SLOT_NAME);
+                $('#txtSlotCode').val(data.SLOT_CODE);
+                $('#txtDescription').val(data.DESCRIPTION);
+                $('#btnSubmit').hide();
+                $('#btnUpdate').show();
+                $('#loader').hide();
+            },
+            error: function (response) {
+                alert("Some problem occured! Try again.");
+            }
+        });
+    }
+
+    function fnDelete(SLOT_ID) {
+        var result = confirm('Are you sure want to delete?');
+        if (result == true) {
+            $('#loader').show();
+            $.ajax({
+                type: "POST",
+                url: "/Store/Remove?SLOT_ID=" + SLOT_ID,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    alert(result);
+                    window.location.reload();
+                },
+                error: function (response) {
+                    alert("Some problem occured! Try again.");
+                }
+            });
+        }
+    }
+
+    function fnReset() {
+        $('#hdnSlotId').val('');
+        $('#ddlStore').val('');
+        $('#txtSlot').val('');
+        $('#txtSlotCode').val('');
+        $('#txtDescription').val('');
+        $('#btnSubmit').show();
+        $('#btnUpdate').hide();
+    }
+</script>
+
+
+

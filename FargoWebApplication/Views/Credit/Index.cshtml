@@ -1,0 +1,403 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Fargo_Models.CreditEntryModel
+<style>
+    .fontDesign {
+        color: #666666;
+        font-weight: bold;
+        font-size: 13px;
+    }
+</style>
+@if (ViewBag.IsData == "0")
+{
+    <script>alert('Data not found');</script>
+}
+
+<style type="text/css">
+    #loader {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('../../Images/480px-Loader.gif');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-color: white;
+        z-index: 10000;
+    }
+
+    .btn {
+        background-color: #0a654d;
+        border-color: #0a654d;
+    }
+
+        .btn:hover {
+            background-color: #074434;
+            border-color: #074434;
+        }
+
+        .btn:active {
+            background-color: #0a654d !important;
+            border-color: #0a654d;
+        }
+
+        .btn:focus {
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            color: #fff;
+            background-color: #074434;
+        }
+</style>
+
+
+<style type="text/css">
+    .web_dialog_overlay {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: #000000;
+        opacity: .15;
+        filter: alpha(opacity=15);
+        -moz-opacity: .15;
+        z-index: 101;
+        display: none;
+    }
+
+    .web_dialog {
+        display: none;
+        position: fixed;
+        width: 550px;
+        height: 390px;
+        top: 29%;
+        left: 50%;
+        margin-left: -190px;
+        margin-top: -100px;
+        background-color: #ffffff;
+        border: 2px solid #336699;
+        padding: 0px;
+        z-index: 102;
+        font-family: Verdana;
+        font-size: 10pt;
+    }
+
+    .web_dialog_title {
+        border-bottom: solid 2px #336699;
+        background-color: #074434;
+        padding: 4px;
+        color: White;
+        font-weight: bold;
+        font-family: Arial;
+        display: none;
+    }
+
+        .web_dialog_title a {
+            color: White;
+            text-decoration: none;
+        }
+
+    .align_right {
+        text-align: right;
+    }
+</style>
+
+<div class="main-body">
+    <input type="hidden" id="hdnCreditEntryId" />
+    <input type="hidden" id="hdnSearchDate" />
+    <input type="hidden" id="hdnUserId" value="@ViewBag.USER_ID" />
+    <div class="page-wrapper">
+
+        <div id="output"></div>
+        <div id="overlay" class="web_dialog_overlay"></div>
+        <div id="dialog" class="web_dialog" style="background: linear-gradient(45deg, #074434, #0a654d);">
+            <table style="width: 100%; border: 0px; background-color:white; padding:3px 10px" class="table table-hover">
+
+                <tr>
+                    <td width="5%"></td>
+                    <td>CASHIER NAME</td>
+                    <td><label id="_lblCashierName"></label></td>
+                    <td width="5%"></td>
+                </tr>
+                <tr>
+                    <td width="5%"></td>
+                    <td>STORE NAME</td>
+                    <td><label id="_lblStoreName"></label></td>
+                    <td width="5%"></td>
+                </tr>
+                <tr>
+                    <td width="5%"></td>
+                    <td>CREDIT NOTE AMOUNT</td>
+                    <td><label id="_lblCreditEntryAmount"></label> /-</td>
+                    <td width="5%"></td>
+                </tr>
+                <tr>
+                    <td width="5%"></td>
+                    <td>ACTION</td>
+                    <td>
+                        <select id="ddlRemark" class="form-control">
+                            <option value="3">--SELECT--</option>
+                            <option value="1" selected>APPROVE</option>
+                            <option value="0">REJECT</option>
+                        </select>
+                    </td>
+                    <td width="5%"></td>
+                </tr>
+                <tr>
+                    <td width="5%"></td>
+                    <td>REMARK</td>
+                    <td>
+                        <input type="text" class="form-control" id="txtRemark" />
+                    </td>
+                    <td width="5%"></td>
+                </tr>
+                <tr>
+                    .
+                    <td width="5%"></td>
+                    <td align="left"><h6><label id="lblDate"></label></h6></td>
+                    <td align="right">
+                        <input type="button" class="btn btn-success btn-sm" id="btnSave" value="Submit">
+                        &nbsp;&nbsp;
+                        <input type="button" class="btn btn-success btn-sm" id="btnClose" value="Cancel">
+                    </td>
+                    <td width="5%"></td>
+                </tr>
+            </table>
+
+        </div>
+
+        <div class="page-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-block primary-breadcrumb" style="height:12px; background: linear-gradient(45deg, #074434, #0a654d);">
+                            <div class="breadcrumb-header" style="color:white">
+                                <h6>Credit Entry</h6>
+                            </div>
+                        </div>
+                        <div class="card-block">
+
+                            @using (Html.BeginForm("Index", "Credit", FormMethod.Post, new { enctype = "multipart/form-data", id = "frmCreditIndex" }))
+                            {
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <span class="pcoded-mtext fontDesign">From Date</span>
+                                            @Html.TextBoxFor(x => x.FROM_DATE, new { @class = "form-control", @id = "txtFromDate" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <span class="pcoded-mtext fontDesign">To Date</span>
+                                            @Html.TextBoxFor(x => x.TO_DATE, new { @class = "form-control", @id = "txtToDate" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12" align="left">
+                                        <input type="submit" class="btn btn-success" id="btnSubmit" value="Search">
+                                        &nbsp;<button type="button" class="btn btn-warning" id="btnReset" onclick="fnReset()"><i class="fa fa-refresh"></i> Reset</button>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if (ViewBag.LstCreditEntry != null)
+        {
+          <!-- Page-body start -->
+            <div class="page-body">
+                <!-- Basic table card start -->
+                <div class="card">
+                    <div class="card-block table-border-style">
+                        <div class="table-responsive">
+
+                            <table id="tblSettlement" class="table table-bordered table-hover">
+                                <thead style="background-color:#074434; color:white">
+                                    <tr style="background-color:#074434; padding:3px, 10px">
+                                        <td><b><label style="color:white">SL No.</label></b></td>
+                                        <td><b><label style="color:white">Entry Date</label></b></td>
+                                        <td><b><label style="color:white">Customer</label></b></td>
+                                        <td><b><label style="color:white">Amount</label></b></td>
+                                        <td><b><label style="color:white">Payment Mode</label></b></td>
+                                        <td><b><label style="color:white">Reference No</label></b></td>
+                                        <td><b><label style="color:white">Bank</label></b></td>
+                                        <td><b><label style="color:white">Store</label></b></td>
+                                        <td><b><label style="color:white">Cashier</label></b></td>
+                                        <td><b><label style="color:white">Action</label></b></td>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{ int Count = 0;}
+                                    @foreach (var creditEntry in ViewBag.LstCreditEntry)
+                                    {
+                                        Count = Count + 1;
+                                        <tr style="padding:3px, 10px">
+                                            <td style="padding:3px, 10px">@Count</td>
+                                            <td><label id="lblDate_@creditEntry.CREDIT_ENTRY_ID">@creditEntry.ENTRY_DATE</label></td>
+                                            <td><label id="lblCustomerName_@creditEntry.CREDIT_ENTRY_ID">@creditEntry.CUSTOMER_NAME</label></td>
+                                            <td><label id="lblCreditEntryAmount_@creditEntry.CREDIT_ENTRY_ID">@creditEntry.CREDIT_ENTRY_AMOUNT</label></td>
+                                            <td><label id="lblPaymentMode_@creditEntry.CREDIT_ENTRY_ID">@creditEntry.PAYMENT_MODE</label></td>
+                                            <td><label id="lblReferenceNo_@creditEntry.CREDIT_ENTRY_ID">@creditEntry.REFERENCE_NO</label></td>
+                                            <td><label id="lblBankName_@creditEntry.CREDIT_ENTRY_ID">@creditEntry.BANK_NAME</label></td>
+                                            <td><label id="lblStoreName_@creditEntry.CREDIT_ENTRY_ID">@creditEntry.STORE_NAME</label></td>
+                                            <td><label id="lblCashierName_@creditEntry.CREDIT_ENTRY_ID">@creditEntry.CASHIER_NAME</label></td>
+                                            <td>
+                                                <span style='cursor:pointer;' title='Action' onclick="fnAction('@creditEntry.CREDIT_ENTRY_ID')"><i class='ti-pencil'></i></span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+
+                        </div>
+                    </div>
+                </div>
+                <!-- Basic table card end -->
+            </div>
+        <!-- Page-body end -->
+        }
+
+    </div>
+</div>
+<div id="loader" style="text-align:center; padding-top:20%;">
+    <span style="font-size:22px;color:#dce3de;">Please wait data is processing.....</span>
+</div>
+<div id="styleSelector">
+
+</div>
+<script type="text/javascript" src="~/Assets/js/jquery/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#txtFromDate, #txtToDate').datepicker({ dateFormat: 'dd-mm-yy' });
+        const dataTable = new simpleDatatables.DataTable("#tblSettlement");
+
+    });
+
+    function fnReset() {
+        $('#txtFromDate, #txtToDate').val('');
+    }
+
+    function fnAction(Id)
+    {
+        $("#hdnCreditEntryId").val(Id);
+        $("#_lblCashierName").text($("#lblCashierName_" + Id).text());
+        $("#_lblStoreName").text($("#lblStoreName_" + Id).text());
+        $("#_lblCreditEntryAmount").text($("#lblCreditEntryAmount_" + Id).text());
+
+        $("#overlay").show();
+        $("#dialog").fadeIn(500);
+    }
+
+
+</script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#btnClose, #divPopupClose").click(function (e) {
+            HideDialog();
+            e.preventDefault();
+        });
+    });
+
+    function ValidateInput() {
+        var IsValid = true;
+        if ($("#txtFromDate") == null || $("#txtFromDate") == "") {
+            alert('From date is required.');
+            $("#txtFromDate").focus();
+            IsValid = false;
+        }
+        if ($("#txtToDate") == null || $("#txtToDate") == "") {
+            alert('To date is required.');
+            $("#txtToDate").focus();
+            IsValid = false;
+        }
+        return false;
+    }
+
+    function ShowDialog(modal) {
+        $("#overlay").show();
+        $("#dialog").fadeIn(300);
+
+        if (modal) {
+            $("#overlay").unbind("click");
+        }
+        else {
+            $("#overlay").click(function (e) {
+                HideDialog();
+            });
+        }
+    }
+
+    function HideDialog() {
+        $("#overlay, #dialog").hide();
+    }
+
+    $("#btnSave").click(function () {
+
+        if (parseInt($('#ddlRemark').val()) == 3) {
+            $('#ddlRemark').focus();
+            return false;
+        }
+
+        if (parseInt($('#ddlRemark').val()) == 0) {
+            if ($('#txtRemark').val() == '' || $('#txtRemark').val() == null) {
+                $('#txtRemark').focus();
+                return false;
+            }
+        }
+
+        $("#loader").show();
+        var CreditEntryModel =
+         {
+             "CREDIT_ENTRY_ID": $("#hdnCreditEntryId").val(),
+             "MANAGER_ID":  $("#hdnUserId").val(),
+             "IS_MANAGER_APPROVED": ($("#ddlRemark").val())=='1'?true:false,
+            "MANAGER_REMARK": $("#txtRemark").val(),
+            "CREDIT_ENTRY_AMOUNT": $("#_lblCreditEntryAmount").text()
+         }
+        $.ajax({
+            type: "POST",
+            url: "/Credit/ActionCreditEntry",
+            data: JSON.stringify(CreditEntryModel),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                if (parseInt(result) > 0) {
+                    HideDialog();
+                    $("#loader").hide();
+                    alert("Manager response added.");
+                    window.location.reload();
+                }
+                else {
+                    alert("Manager response not added.");
+                    return false;
+                }
+            },
+            error: function (response) {
+                alert("Manager response not added.");
+                $("#loader").hide();
+            }
+        });
+    });
+</script>
+
+
+
+
+

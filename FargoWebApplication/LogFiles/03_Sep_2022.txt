@@ -1,0 +1,288 @@
+-----------Exception Details on  03-09-2022 02:04:20 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 02:04:20 PM
+
+Error Line No : line 185
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : @CONTENT is not a parameter for procedure spMpesaTest.
+
+ Error Page Url: http://localhost:6492/api/MPesaTransactionAPI/MPesaTransactionTestRequest
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 02:11:16 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 02:11:16 PM
+
+Error Line No : line 112
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote server returned an error: (400) Bad Request.
+
+ Error Page Url: http://localhost:6492/api/MPesaTransactionAPI/MPesaValidation
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 02:15:29 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 02:15:29 PM
+
+Error Line No : line 112
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote server returned an error: (400) Bad Request.
+
+ Error Page Url: http://localhost:6492/api/MPesaTransactionAPI/MPesaValidation
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 02:16:51 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 02:16:51 PM
+
+Error Line No : line 112
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote server returned an error: (400) Bad Request.
+
+ Error Page Url: http://localhost:6492/api/MPesaTransactionAPI/MPesaValidation
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 05:48:04 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 05:48:04 PM
+
+Error Line No : line 357
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote name could not be resolved: 'fc-podev.fargocourier.co.ke'
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 05:49:46 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 05:49:46 PM
+
+Error Line No : line 357
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote name could not be resolved: 'fc-podev.fargocourier.co.ke'
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 05:52:16 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 05:52:16 PM
+
+Error Line No : line 357
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote name could not be resolved: 'fc-podev.fargocourier.co.ke'
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 05:53:16 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 05:53:16 PM
+
+Error Line No : line 357
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote name could not be resolved: 'fc-podev.fargocourier.co.ke'
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 05:57:28 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 05:57:28 PM
+
+Error Line No : line 357
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote name could not be resolved: 'fc-podev.fargocourier.co.ke'
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 06:00:24 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 06:00:24 PM
+
+Error Line No : line 357
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote name could not be resolved: 'fc-podev.fargocourier.co.ke'
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 06:02:12 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 06:02:12 PM
+
+Error Line No : line 357
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote name could not be resolved: 'fc-podev.fargocourier.co.ke'
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 06:03:49 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 06:03:49 PM
+
+Error Line No : line 845
+
+Error Message: RuntimeWorkerException
+
+Exception Type: iTextSharp.tool.xml.exceptions.RuntimeWorkerException
+
+Error Location : Invalid nested tag td found, expected closing tag tr.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 06:03:49 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 06:03:49 PM
+
+Error Line No : line 357
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote name could not be resolved: 'fc-podev.fargocourier.co.ke'
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 06:04:45 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 06:04:45 PM
+
+Error Line No : line 357
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote name could not be resolved: 'fc-podev.fargocourier.co.ke'
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 06:05:58 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 06:05:58 PM
+
+Error Line No : line 357
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote name could not be resolved: 'fc-podev.fargocourier.co.ke'
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  03-09-2022 06:06:37 PM------------------------------------------------------------------------------------------------------
+
+Log Written Date: 03-09-2022 06:06:37 PM
+
+Error Line No : line 357
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote name could not be resolved: 'fc-podev.fargocourier.co.ke'
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
