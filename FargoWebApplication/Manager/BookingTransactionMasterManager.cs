@@ -24,31 +24,15 @@ namespace FargoWebApplication.Manager
 {
     public class BookingTransactionMasterManager
     {
-        public static string DomainName = string.Empty;
-        public static string ETR_URL = string.Empty;
-        public static string SAP_URL = string.Empty;
-        public static string SAPAuthorizationHeader = string.Empty;
-        public static string ETRAccessKey = string.Empty;
-        public static string ETRClientId = string.Empty;
-        public BookingTransactionMasterManager()
-        {   
-            try
-            {
-                DomainName = ConfigurationManager.AppSettings["DomainName"].ToString();
-                ETR_URL = ConfigurationManager.AppSettings["ETR_URL"].ToString();
-                SAP_URL = ConfigurationManager.AppSettings["SAP_URL"].ToString();
-                SAPAuthorizationHeader = ConfigurationManager.AppSettings["SAPAuthorizationHeader"].ToString();
-                ETRAccessKey = ConfigurationManager.AppSettings["ETRAccessKey"].ToString();
-                ETRClientId = ConfigurationManager.AppSettings["ETRClientId"].ToString();
-            }
-            catch (Exception exception)
-            {
-                string ErrorMessage = ExceptionLogging.SendErrorToText(exception);
-            }
-        }
-
         public static int SubmitBookingTransaction(BookingTransactionMasterModel bookingTransactionMaster, out string TransactionId, string MerchantRequestID, string CheckoutRequestID)
         {
+            string DomainName = ConfigurationManager.AppSettings["DomainName"].ToString();
+            string ETR_URL = ConfigurationManager.AppSettings["ETR_URL"].ToString();
+            string SAP_URL = ConfigurationManager.AppSettings["SAP_URL"].ToString();
+            string SAPAuthorizationHeader = ConfigurationManager.AppSettings["SAPAuthorizationHeader"].ToString();
+            string ETRAccessKey = ConfigurationManager.AppSettings["ETRAccessKey"].ToString();
+            string ETRClientId = ConfigurationManager.AppSettings["ETRClientId"].ToString();
+
             int result = 0; TransactionId = string.Empty;
             double? totalCashAmount = 0; double? totalMPesaAmount = 0; double? totalCreditAmount = 0;
             int NoOfCashTransaction = 0; int NoOfMPesaTransaction = 0; int NoOfCreditTransaction = 0;         
@@ -264,7 +248,7 @@ namespace FargoWebApplication.Manager
                             #region FOR SAP INTEGRATION REGARDING BOOKING TRANSACTION.
                             try
                             {
-                                _result = SAPBookingTransactionIntegration(bookingTransactionMaster.USER_ID, BOOKING_TRANSACTION_ID, TRANSACTION_ID, "USD", DateTime.Now.ToString("MMddyyyy"), bookingTransactionMaster.BOOKING_ORDER_DETAILS.Count(), bookingTransactionMaster.TOTAL_AMOUNT, bookingTransactionMaster.MATERIAL_CODE, STORE_CODE, _ETRTransactionResponseModel.signature.cuNumber, _ETRTransactionResponseModel.signature.fiscalTransactionNumber, bookingTransactionMaster.BOOKING_ORDER_DETAILS.Count().ToString());
+                                _result = SAPBookingTransactionIntegration(bookingTransactionMaster.USER_ID, BOOKING_TRANSACTION_ID, TRANSACTION_ID, "USD", DateTime.Now.ToString("MMddyyyy"), bookingTransactionMaster.BOOKING_ORDER_DETAILS.Count(), bookingTransactionMaster.TOTAL_AMOUNT, bookingTransactionMaster.MATERIAL_CODE, STORE_CODE, _ETRTransactionResponseModel.signature.cuNumber, _ETRTransactionResponseModel.signature.fiscalTransactionNumber, bookingTransactionMaster.BOOKING_ORDER_DETAILS.Count().ToString(), SAP_URL, SAPAuthorizationHeader);
                             }
                             catch (Exception exception)
                             {
@@ -283,7 +267,7 @@ namespace FargoWebApplication.Manager
         }
 
 
-        public static int SAPBookingTransactionIntegration(long USER_ID, string BOOKING_TRANSACTION_ID, string TRANSACTION_ID, string CURRENCY, string DATE, double QUANTITY, double PRICE, string MATERIAL_CODE, string STORE_CODE, string CU_NUMBER, string FISCAL_TRANSACTION_NUMBER, string MATERIAL_TEXT)
+        public static int SAPBookingTransactionIntegration(long USER_ID, string BOOKING_TRANSACTION_ID, string TRANSACTION_ID, string CURRENCY, string DATE, double QUANTITY, double PRICE, string MATERIAL_CODE, string STORE_CODE, string CU_NUMBER, string FISCAL_TRANSACTION_NUMBER, string MATERIAL_TEXT, string SAP_URL, string SAPAuthorizationHeader)
         {
             int result = 0;
             try
@@ -950,19 +934,16 @@ namespace FargoWebApplication.Manager
             bool HasNetBalance = true;
             try
             {
-                if (bookingTransactionMaster.CUSTOMER_ID > 0)
+                SqlParameter sp1 = new SqlParameter("@CUSTOMER_ID", bookingTransactionMaster.CUSTOMER_ID);
+                SqlParameter sp2 = new SqlParameter("@FLAG", "3");
+                DataTable dataTable = clsDataAccess.ExecuteDataTable(CommandType.StoredProcedure, "spCreditEntryInsert", sp1, sp2);
+                if (dataTable != null && dataTable.Rows.Count > 0)
                 {
-                    SqlParameter sp1 = new SqlParameter("@CUSTOMER_ID", bookingTransactionMaster.CUSTOMER_ID);
-                    SqlParameter sp2 = new SqlParameter("@FLAG", "3");
-                    DataTable dataTable = clsDataAccess.ExecuteDataTable(CommandType.StoredProcedure, "spCreditEntryInsert", sp1, sp2);
-                    if (dataTable != null && dataTable.Rows.Count > 0)
-                    {
-                        double NET_AMOUNT = Convert.ToDouble(dataTable.Rows[0][0].ToString());
-                        if (bookingTransactionMaster.TOTAL_AMOUNT <= NET_AMOUNT)
-                            HasNetBalance = true;
-                        else
-                            HasNetBalance = false;
-                    }
+                    double NET_AMOUNT = Convert.ToDouble(dataTable.Rows[0][0].ToString());
+                    if (bookingTransactionMaster.TOTAL_AMOUNT <= NET_AMOUNT)
+                        HasNetBalance = true;
+                    else
+                        HasNetBalance = false;
                 }
             }
             catch (Exception exception)
@@ -1200,15 +1181,16 @@ namespace FargoWebApplication.Manager
                 foreach (BookingOrderDetailsModel bookingOrderDetailsModel in bookingTransactionMasterModel.BOOKING_ORDER_DETAILS)
                 {
                     string WAYBILL_NO = bookingOrderDetailsModel.TRACKING_NUMBER;
-                    if (!string.IsNullOrEmpty(WAYBILL_NO))
-                    {
-                        LstWaybills = LstWaybills + ',' + WAYBILL_NO;
-                    }
-                    else
+                    if (string.IsNullOrEmpty(WAYBILL_NO))
                     {
                         break;
                     }
+                    else
+                    {
+                        LstWaybills += "'" + WAYBILL_NO + "',";
+                    }
                 }
+                LstWaybills= LstWaybills.TrimEnd(',');
                 string Query = "SELECT * FROM BOOKING_ORDER_DETAILS WHERE TRACKING_NUMBER IN (" + LstWaybills + ")";
                 DataTable dataTable = clsDataAccess.ExecuteDataTable(CommandType.Text, Query);
                 if (dataTable != null && dataTable.Rows.Count > 0)

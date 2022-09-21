@@ -30,10 +30,7 @@ namespace FargoWebApplication.FargoAPI
             try
             {
                 int result = 0;
-                string BasicAuthenticationCredentials = ConfigurationManager.AppSettings["BasicAuthenticationCredentials"].ToString();
-                string BusinessShortCode = ConfigurationManager.AppSettings["BusinessShortCode"].ToString();
-                string PasswordKey = ConfigurationManager.AppSettings["PasswordKey"].ToString();
-
+               
                 ResponseModel responseModel = new ResponseModel();
                 string Username = Thread.CurrentPrincipal.Identity.Name;
                 if (!string.IsNullOrEmpty(Username))
@@ -51,11 +48,11 @@ namespace FargoWebApplication.FargoAPI
                         string MERCHANT_REQUEST_ID = String.Empty;
                         string CHECKOUT_REQUEST_ID = String.Empty;
 
-                        string accessToken = MPesaTransactionManager.GenerateAccessToken(BasicAuthenticationCredentials);
+                        string accessToken = MPesaTransactionManager.GenerateAccessToken();
 
                         if (!string.IsNullOrEmpty(accessToken))
                         {
-                            result = MPesaTransactionManager.MPesaProcess(MPESA_TRANSACTION_ID, CUSTOMER_MOBILE, MPESA_AMOUNT, TIMESTAMP, accessToken, BusinessShortCode, PasswordKey, out mPesaProcessResponseModel);
+                            result = MPesaTransactionManager.MPesaProcess(MPESA_TRANSACTION_ID, CUSTOMER_MOBILE, MPESA_AMOUNT, TIMESTAMP, accessToken, out mPesaProcessResponseModel);
                             if (mPesaProcessResponseModel != null && result > 0)
                             {
                                 return Request.CreateResponse(HttpStatusCode.OK, mPesaProcessResponseModel);

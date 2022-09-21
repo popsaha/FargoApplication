@@ -4,6 +4,7 @@ using Fargo_Models;
 using FargoWebApplication.Filter;
 using FargoWebApplication.Manager;
 using System;
+using System.Configuration;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -24,7 +25,7 @@ namespace FargoWebApplication.FargoAPI
             BookingResponseModel bookingResponseModel = new BookingResponseModel();
             try
             {
-                string Username = Thread.CurrentPrincipal.Identity.Name;
+                string Username = Thread.CurrentPrincipal.Identity.Name;                
                 if (!string.IsNullOrEmpty(Username))
                 {
                     string MerchantRequestID = string.Empty; string CheckoutRequestID = string.Empty;
@@ -32,17 +33,17 @@ namespace FargoWebApplication.FargoAPI
                     {
                         if (bookingTransactionMaster.BOOKING_ORDER_DETAILS != null)
                         {
-                            if (bookingTransactionMaster.BOOKING_PAYMENT_DETAILS != null)//order details.....not BOOKING_PAYMENT_DETAILS
+                            if (bookingTransactionMaster.BOOKING_PAYMENT_DETAILS != null)
                             {
-                                if (BookingTransactionMasterManager.IsValidWaybillNumber(bookingTransactionMaster)) //checking if valid waybill format
+                                if (BookingTransactionMasterManager.IsValidWaybillNumber(bookingTransactionMaster))
                                 {
-                                    if (!BookingTransactionMasterManager.IsDuplicateWaybillFound(bookingTransactionMaster)) // checking if duplicate waybill
+                                    if (!BookingTransactionMasterManager.IsDuplicateWaybillFound(bookingTransactionMaster))
                                     {
-                                        if (bookingTransactionMaster.CUSTOMER_ID > 0) // checking if credit customer
+                                        if (bookingTransactionMaster.CUSTOMER_ID > 0)
                                         {
-                                            if (BookingTransactionMasterManager.HasNetBalance(bookingTransactionMaster)) //checking if credit customer has balance to book
+                                            if (BookingTransactionMasterManager.HasNetBalance(bookingTransactionMaster))
                                             {
-                                                int result = BookingTransactionMasterManager.SubmitBookingTransaction(bookingTransactionMaster, out TransactionId, MerchantRequestID, CheckoutRequestID);
+                                                int result = BookingTransactionMasterManager.SubmitBookingTransaction(bookingTransactionMaster, out TransactionId,MerchantRequestID, CheckoutRequestID);
                                                 if (result > 0)
                                                 {
                                                     bookingResponseModel.TransactionId = TransactionId;
@@ -51,7 +52,7 @@ namespace FargoWebApplication.FargoAPI
                                                     bookingResponseModel.Description = "Transaction booked successfully.";
                                                     return Request.CreateResponse(HttpStatusCode.Created, bookingResponseModel);
                                                 }
-                                                else // need to give specific reason
+                                                else
                                                 {
                                                     bookingResponseModel.TransactionId = null;
                                                     bookingResponseModel.Status = "Failed";
@@ -160,7 +161,7 @@ namespace FargoWebApplication.FargoAPI
                                 bookingResponseModel.Message = "Transaction not done.";
                                 bookingResponseModel.Description = "Payment information is missing";
                                 return Request.CreateResponse(HttpStatusCode.BadRequest, bookingResponseModel);
-                            }
+                            }                            
                         }
                         else
                         {
