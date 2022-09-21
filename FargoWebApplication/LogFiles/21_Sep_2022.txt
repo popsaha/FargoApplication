@@ -1,0 +1,90 @@
+-----------Exception Details on  21/09/2022 10:57:11------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 10:57:11
+
+Error Line No : ine 1213
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Incorrect syntax near ','.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 10:58:41------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 10:58:41
+
+Error Line No : ine 1213
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Incorrect syntax near ','.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 10:59:12------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 10:59:12
+
+Error Line No : ine 1213
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Incorrect syntax near ','.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 11:05:43------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 11:05:43
+
+Error Line No : ine 1213
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Incorrect syntax near ','.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 11:06:54------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 11:06:54
+
+Error Line No : ine 1213
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Incorrect syntax near ','.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
