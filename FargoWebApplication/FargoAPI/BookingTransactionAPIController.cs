@@ -4,7 +4,6 @@ using Fargo_Models;
 using FargoWebApplication.Filter;
 using FargoWebApplication.Manager;
 using System;
-using System.Configuration;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -25,7 +24,7 @@ namespace FargoWebApplication.FargoAPI
             BookingResponseModel bookingResponseModel = new BookingResponseModel();
             try
             {
-                string Username = Thread.CurrentPrincipal.Identity.Name;                
+                string Username = Thread.CurrentPrincipal.Identity.Name;
                 if (!string.IsNullOrEmpty(Username))
                 {
                     string MerchantRequestID = string.Empty; string CheckoutRequestID = string.Empty;
@@ -33,116 +32,114 @@ namespace FargoWebApplication.FargoAPI
                     {
                         if (bookingTransactionMaster.BOOKING_ORDER_DETAILS != null)
                         {
-                            if (bookingTransactionMaster.BOOKING_PAYMENT_DETAILS != null)
+                            //CHECKING if Valid Waybill
+                            if (BookingTransactionMasterManager.IsValidWaybillNumber(bookingTransactionMaster))
                             {
-                                if (BookingTransactionMasterManager.IsValidWaybillNumber(bookingTransactionMaster))
+                                //CHECKING if Duplicate Waybill
+                                if (!BookingTransactionMasterManager.IsDuplicateWaybillFound(bookingTransactionMaster))
                                 {
-                                    if (!BookingTransactionMasterManager.IsDuplicateWaybillFound(bookingTransactionMaster))
+                                    //CHECKING if Credit Customer
+                                    if (bookingTransactionMaster.CUSTOMER_ID > 0)
                                     {
-                                        if (bookingTransactionMaster.CUSTOMER_ID > 0)
+                                        //CHECKING if Credit Customer has balance     
+                                        if (BookingTransactionMasterManager.HasNetBalance(bookingTransactionMaster))
                                         {
-                                            if (BookingTransactionMasterManager.HasNetBalance(bookingTransactionMaster))
+                                            //booking
+                                            int result = BookingTransactionMasterManager.SubmitBookingTransaction(bookingTransactionMaster, out TransactionId, MerchantRequestID, CheckoutRequestID);
+                                            if (result > 0)
                                             {
-                                                int result = BookingTransactionMasterManager.SubmitBookingTransaction(bookingTransactionMaster, out TransactionId,MerchantRequestID, CheckoutRequestID);
-                                                if (result > 0)
+                                                bookingResponseModel.TransactionId = TransactionId;
+                                                bookingResponseModel.Status = "Success";
+                                                bookingResponseModel.Message = "Transaction booked successfully.";
+                                                bookingResponseModel.Description = "Transaction booked successfully.";
+                                                return Request.CreateResponse(HttpStatusCode.Created, bookingResponseModel);
+                                            }
+                                            else // need to give proper msg
+                                            {
+                                                bookingResponseModel.TransactionId = null;
+                                                bookingResponseModel.Status = "Failed";
+                                                bookingResponseModel.Message = "Transaction not done.";
+                                                bookingResponseModel.Description = "Something went wrong. Please try again.";
+                                                return Request.CreateResponse(HttpStatusCode.InternalServerError, bookingResponseModel);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            bookingResponseModel.TransactionId = null;
+                                            bookingResponseModel.Status = "Failed";
+                                            bookingResponseModel.Message = "Insufficient account balance for customer.";
+                                            bookingResponseModel.Description = "Insufficient account balance for customer.";
+                                            return Request.CreateResponse(HttpStatusCode.BadRequest, bookingResponseModel);
+                                        }
+                                    }
+                                    // Normal Customer
+                                    else
+                                    {
+                                        double MPesaAmount = 0;
+                                        // checking if Mpesa Transaction
+                                        if (BookingTransactionMasterManager.IsMPesaTransaction("Booking", bookingTransactionMaster, null, out MPesaAmount))
+                                        {
+                                            if (bookingTransactionMaster.BOOKING_MPESA_TRANSACTION != null)
+                                            {
+                                                MerchantRequestID = bookingTransactionMaster.BOOKING_MPESA_TRANSACTION.MERCHANT_REQUEST_ID;
+                                                CheckoutRequestID = bookingTransactionMaster.BOOKING_MPESA_TRANSACTION.CHECKOUT_REQUEST_ID;
+
+                                                // checking if Mpesa Transaction Valid - if not then no booking.
+                                                if (!BookingTransactionMasterManager.IsMPesaValidResponse(MPesaAmount, MerchantRequestID, CheckoutRequestID, out bookingResponseModel))
                                                 {
-                                                    bookingResponseModel.TransactionId = TransactionId;
-                                                    bookingResponseModel.Status = "Success";
-                                                    bookingResponseModel.Message = "Transaction booked successfully.";
-                                                    bookingResponseModel.Description = "Transaction booked successfully.";
-                                                    return Request.CreateResponse(HttpStatusCode.Created, bookingResponseModel);
+                                                    return Request.CreateResponse(HttpStatusCode.BadRequest, bookingResponseModel);
                                                 }
-                                                else
+                                                else // Valid Mpesa Transaction 
                                                 {
-                                                    bookingResponseModel.TransactionId = null;
-                                                    bookingResponseModel.Status = "Failed";
-                                                    bookingResponseModel.Message = "Transaction not done.";
-                                                    bookingResponseModel.Description = "Something went wrong. Please try again.";
-                                                    return Request.CreateResponse(HttpStatusCode.InternalServerError, bookingResponseModel);
+                                                    int result = BookingTransactionMasterManager.SubmitBookingTransaction(bookingTransactionMaster, out TransactionId, MerchantRequestID, CheckoutRequestID);
+                                                    if (result > 0)
+                                                    {
+                                                        bookingResponseModel.TransactionId = TransactionId;
+                                                        bookingResponseModel.Status = "Success";
+                                                        bookingResponseModel.Message = "Transaction booked successfully.";
+                                                        bookingResponseModel.Description = "Transaction booked successfully.";
+                                                        return Request.CreateResponse(HttpStatusCode.Created, bookingResponseModel);
+                                                    }
+                                                    else //need to give specific message
+                                                    {
+                                                        bookingResponseModel.TransactionId = null;
+                                                        bookingResponseModel.Status = "Failed";
+                                                        bookingResponseModel.Message = "Transaction not done.";
+                                                        bookingResponseModel.Description = "Something went wrong. Please try again.";
+                                                        return Request.CreateResponse(HttpStatusCode.InternalServerError, bookingResponseModel);
+                                                    }
                                                 }
                                             }
                                             else
                                             {
                                                 bookingResponseModel.TransactionId = null;
                                                 bookingResponseModel.Status = "Failed";
-                                                bookingResponseModel.Message = "Insufficient account balance for customer.";
-                                                bookingResponseModel.Description = "Insufficient account balance for customer.";
+                                                bookingResponseModel.Message = "Mpesa Transaction not done.";
+                                                bookingResponseModel.Description = "MPesa merchant & checkout information is missing.";
                                                 return Request.CreateResponse(HttpStatusCode.BadRequest, bookingResponseModel);
                                             }
                                         }
+                                        //CASH only transaction
                                         else
                                         {
-                                            double MPesaAmount = 0;
-                                            if (BookingTransactionMasterManager.IsMPesaTransaction("Booking", bookingTransactionMaster, null, out MPesaAmount))
+                                            int result = BookingTransactionMasterManager.SubmitBookingTransaction(bookingTransactionMaster, out TransactionId, MerchantRequestID, CheckoutRequestID);
+                                            if (result > 0)
                                             {
-                                                if (bookingTransactionMaster.BOOKING_MPESA_TRANSACTION != null)
-                                                {
-                                                    MerchantRequestID = bookingTransactionMaster.BOOKING_MPESA_TRANSACTION.MERCHANT_REQUEST_ID;
-                                                    CheckoutRequestID = bookingTransactionMaster.BOOKING_MPESA_TRANSACTION.CHECKOUT_REQUEST_ID;
-
-                                                    if (!BookingTransactionMasterManager.IsMPesaValidResponse(MPesaAmount, MerchantRequestID, CheckoutRequestID, out bookingResponseModel))
-                                                    {
-                                                        return Request.CreateResponse(HttpStatusCode.BadRequest, bookingResponseModel);
-                                                    }
-                                                    else
-                                                    {
-                                                        int result = BookingTransactionMasterManager.SubmitBookingTransaction(bookingTransactionMaster, out TransactionId, MerchantRequestID, CheckoutRequestID);
-                                                        if (result > 0)
-                                                        {
-                                                            bookingResponseModel.TransactionId = TransactionId;
-                                                            bookingResponseModel.Status = "Success";
-                                                            bookingResponseModel.Message = "Transaction booked successfully.";
-                                                            bookingResponseModel.Description = "Transaction booked successfully.";
-                                                            return Request.CreateResponse(HttpStatusCode.Created, bookingResponseModel);
-                                                        }
-                                                        else
-                                                        {
-                                                            bookingResponseModel.TransactionId = null;
-                                                            bookingResponseModel.Status = "Failed";
-                                                            bookingResponseModel.Message = "Transaction not done.";
-                                                            bookingResponseModel.Description = "Something went wrong. Please try again.";
-                                                            return Request.CreateResponse(HttpStatusCode.InternalServerError, bookingResponseModel);
-                                                        }
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    bookingResponseModel.TransactionId = null;
-                                                    bookingResponseModel.Status = "Failed";
-                                                    bookingResponseModel.Message = "Transaction not done.";
-                                                    bookingResponseModel.Description = "MPesa merchant & checkout information is missing.";
-                                                    return Request.CreateResponse(HttpStatusCode.BadRequest, bookingResponseModel);
-                                                }
+                                                bookingResponseModel.TransactionId = TransactionId;
+                                                bookingResponseModel.Status = "Success";
+                                                bookingResponseModel.Message = "Transaction booked successfully.";
+                                                bookingResponseModel.Description = "Transaction booked successfully.";
+                                                return Request.CreateResponse(HttpStatusCode.Created, bookingResponseModel);
                                             }
                                             else
                                             {
-                                                int result = BookingTransactionMasterManager.SubmitBookingTransaction(bookingTransactionMaster, out TransactionId, MerchantRequestID, CheckoutRequestID);
-                                                if (result > 0)
-                                                {
-                                                    bookingResponseModel.TransactionId = TransactionId;
-                                                    bookingResponseModel.Status = "Success";
-                                                    bookingResponseModel.Message = "Transaction booked successfully.";
-                                                    bookingResponseModel.Description = "Transaction booked successfully.";
-                                                    return Request.CreateResponse(HttpStatusCode.Created, bookingResponseModel);
-                                                }
-                                                else
-                                                {
-                                                    bookingResponseModel.TransactionId = null;
-                                                    bookingResponseModel.Status = "Failed";
-                                                    bookingResponseModel.Message = "Transaction not done.";
-                                                    bookingResponseModel.Description = "Something went wrong. Please try again.";
-                                                    return Request.CreateResponse(HttpStatusCode.InternalServerError, bookingResponseModel);
-                                                }
+                                                bookingResponseModel.TransactionId = null;
+                                                bookingResponseModel.Status = "Failed";
+                                                bookingResponseModel.Message = "Transaction not done.";
+                                                bookingResponseModel.Description = "Something went wrong. Please try again.";
+                                                return Request.CreateResponse(HttpStatusCode.InternalServerError, bookingResponseModel);
                                             }
                                         }
-                                    }
-                                    else
-                                    {
-                                        bookingResponseModel.TransactionId = null;
-                                        bookingResponseModel.Status = "Failed";
-                                        bookingResponseModel.Message = "Transaction not done.";
-                                        bookingResponseModel.Description = "Duplicate waybill found.";
-                                        return Request.CreateResponse(HttpStatusCode.InternalServerError, bookingResponseModel);
                                     }
                                 }
                                 else
@@ -150,8 +147,8 @@ namespace FargoWebApplication.FargoAPI
                                     bookingResponseModel.TransactionId = null;
                                     bookingResponseModel.Status = "Failed";
                                     bookingResponseModel.Message = "Transaction not done.";
-                                    bookingResponseModel.Description = "Invalid waybill found.";
-                                    return Request.CreateResponse(HttpStatusCode.BadRequest, bookingResponseModel);
+                                    bookingResponseModel.Description = "Duplicate waybill found.";
+                                    return Request.CreateResponse(HttpStatusCode.InternalServerError, bookingResponseModel);
                                 }
                             }
                             else
@@ -159,9 +156,10 @@ namespace FargoWebApplication.FargoAPI
                                 bookingResponseModel.TransactionId = null;
                                 bookingResponseModel.Status = "Failed";
                                 bookingResponseModel.Message = "Transaction not done.";
-                                bookingResponseModel.Description = "Payment information is missing";
+                                bookingResponseModel.Description = "Invalid waybill found.";
                                 return Request.CreateResponse(HttpStatusCode.BadRequest, bookingResponseModel);
-                            }                            
+                            }
+
                         }
                         else
                         {

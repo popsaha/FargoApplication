@@ -35,7 +35,7 @@ namespace FargoWebApplication.Manager
 
             int result = 0; TransactionId = string.Empty;
             double? totalCashAmount = 0; double? totalMPesaAmount = 0; double? totalCreditAmount = 0;
-            int NoOfCashTransaction = 0; int NoOfMPesaTransaction = 0; int NoOfCreditTransaction = 0;         
+            int NoOfCashTransaction = 0; int NoOfMPesaTransaction = 0; int NoOfCreditTransaction = 0;
 
             double totalAmount = bookingTransactionMaster.TOTAL_AMOUNT;
             double taxId = bookingTransactionMaster.TAX_ID;
@@ -248,7 +248,7 @@ namespace FargoWebApplication.Manager
                             #region FOR SAP INTEGRATION REGARDING BOOKING TRANSACTION.
                             try
                             {
-                                _result = SAPBookingTransactionIntegration(bookingTransactionMaster.USER_ID, BOOKING_TRANSACTION_ID, TRANSACTION_ID, "USD", DateTime.Now.ToString("MMddyyyy"), bookingTransactionMaster.BOOKING_ORDER_DETAILS.Count(), bookingTransactionMaster.TOTAL_AMOUNT, bookingTransactionMaster.MATERIAL_CODE, STORE_CODE, _ETRTransactionResponseModel.signature.cuNumber, _ETRTransactionResponseModel.signature.fiscalTransactionNumber, bookingTransactionMaster.BOOKING_ORDER_DETAILS.Count().ToString(), SAP_URL, SAPAuthorizationHeader);
+                                _result = SAPBookingTransactionIntegration(bookingTransactionMaster.USER_ID, BOOKING_TRANSACTION_ID, TRANSACTION_ID, "KES", DateTime.Now.ToString("MMddyyyy"), bookingTransactionMaster.BOOKING_ORDER_DETAILS.Count(), bookingTransactionMaster.TOTAL_AMOUNT, bookingTransactionMaster.MATERIAL_CODE, STORE_CODE, _ETRTransactionResponseModel.signature.cuNumber, _ETRTransactionResponseModel.signature.fiscalTransactionNumber, bookingTransactionMaster.BOOKING_ORDER_DETAILS.Count().ToString(), SAP_URL, SAPAuthorizationHeader);
                             }
                             catch (Exception exception)
                             {
@@ -395,7 +395,7 @@ namespace FargoWebApplication.Manager
                     totalCreditAmount = TOTAL_AMOUNT;
                     NoOfCreditTransaction = 1;
 
-                    _DTPayment.Rows.Add(BOOKING_TRANSACTION_ID, USER_ID, USER_ID, "CREDIT", TOTAL_AMOUNT,null, null, "Full payment made via Credit.", "M", "1", USER_ID, DateTime.Now.ToString("MM-dd-yyyy hh:mm:ss"));
+                    _DTPayment.Rows.Add(BOOKING_TRANSACTION_ID, USER_ID, USER_ID, "CREDIT", TOTAL_AMOUNT, null, null, "Full payment made via Credit.", "M", "1", USER_ID, DateTime.Now.ToString("MM-dd-yyyy hh:mm:ss"));
                     _DTPayment.AcceptChanges();
                 }
                 else
@@ -970,7 +970,7 @@ namespace FargoWebApplication.Manager
                             {
                                 if (!string.IsNullOrEmpty(bookingPaymentDetailsModel.PAYMENT_MODE))
                                 {
-                                    if ((bookingPaymentDetailsModel.PAYMENT_MODE.ToUpper().Equals("MPESA")) && (bookingPaymentDetailsModel.AMOUNT>0))
+                                    if ((bookingPaymentDetailsModel.PAYMENT_MODE.ToUpper().Equals("MPESA")) && (bookingPaymentDetailsModel.AMOUNT > 0))
                                     {
                                         MPesaAmount = bookingPaymentDetailsModel.AMOUNT;
                                         IsMPesaTransaction = true;
@@ -1163,7 +1163,7 @@ namespace FargoWebApplication.Manager
                         IsValidWaybillNumber = false; break;
                     }
                 }
-             
+
             }
             catch (Exception exception)
             {
@@ -1190,7 +1190,7 @@ namespace FargoWebApplication.Manager
                         LstWaybills += "'" + WAYBILL_NO + "',";
                     }
                 }
-                LstWaybills= LstWaybills.TrimEnd(',');
+                LstWaybills = LstWaybills.TrimEnd(',');
                 string Query = "SELECT * FROM BOOKING_ORDER_DETAILS WHERE TRACKING_NUMBER IN (" + LstWaybills + ")";
                 DataTable dataTable = clsDataAccess.ExecuteDataTable(CommandType.Text, Query);
                 if (dataTable != null && dataTable.Rows.Count > 0)
