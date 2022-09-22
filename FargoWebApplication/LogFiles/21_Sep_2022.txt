@@ -1,0 +1,306 @@
+-----------Exception Details on  21/09/2022 10:57:11------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 10:57:11
+
+Error Line No : ine 1213
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Incorrect syntax near ','.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 10:58:41------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 10:58:41
+
+Error Line No : ine 1213
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Incorrect syntax near ','.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 10:59:12------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 10:59:12
+
+Error Line No : ine 1213
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Incorrect syntax near ','.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 11:05:43------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 11:05:43
+
+Error Line No : ine 1213
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Incorrect syntax near ','.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 11:06:54------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 11:06:54
+
+Error Line No : ine 1213
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Incorrect syntax near ','.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 12:36:31------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 12:36:31
+
+Error Line No : ine 1213
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Incorrect syntax near ','.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 12:37:59------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 12:37:59
+
+Error Line No : erModel)
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Invalid column name 'FCL46686236'.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 12:43:06------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 12:43:06
+
+Error Line No : erModel)
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Invalid column name 'FCL46686236'.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 12:43:58------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 12:43:58
+
+Error Line No : erModel)
+
+Error Message: SqlException
+
+Exception Type: System.Data.SqlClient.SqlException
+
+Error Location : Incorrect syntax near 'TRACKING_NUMBER'.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 13:21:15------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 13:21:15
+
+Error Line No : questID)
+
+Error Message: UriFormatException
+
+Exception Type: System.UriFormatException
+
+Error Location : Invalid URI: The URI is empty.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 13:36:13------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 13:36:13
+
+Error Line No : questID)
+
+Error Message: UriFormatException
+
+Exception Type: System.UriFormatException
+
+Error Location : Invalid URI: The URI is empty.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 13:39:37------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 13:39:37
+
+Error Line No : questID)
+
+Error Message: UriFormatException
+
+Exception Type: System.UriFormatException
+
+Error Location : Invalid URI: The URI is empty.
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 15:13:59------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 15:13:59
+
+Error Line No : line 323
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : Unable to connect to the remote server
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 15:26:58------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 15:26:58
+
+Error Line No : line 323
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : Unable to connect to the remote server
+
+ Error Page Url: http://localhost:6492/api/BookingTransactionAPI/BookingTransactionMaster
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 16:51:54------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 16:51:54
+
+Error Line No : line 124
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote server returned an error: (400) Bad Request.
+
+ Error Page Url: http://localhost:6492/api/MPesaTransactionAPI/MPesaValidation
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 16:52:48------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 16:52:48
+
+Error Line No : line 124
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote server returned an error: (400) Bad Request.
+
+ Error Page Url: http://localhost:6492/api/MPesaTransactionAPI/MPesaValidation
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+
+-----------Exception Details on  21/09/2022 16:53:34------------------------------------------------------------------------------------------------------
+
+Log Written Date: 21/09/2022 16:53:34
+
+Error Line No : line 124
+
+Error Message: WebException
+
+Exception Type: System.Net.WebException
+
+Error Location : The remote server returned an error: (400) Bad Request.
+
+ Error Page Url: http://localhost:6492/api/MPesaTransactionAPI/MPesaValidation
+
+User Host IP: 
+
+--------------------------------*End*------------------------------------------
+

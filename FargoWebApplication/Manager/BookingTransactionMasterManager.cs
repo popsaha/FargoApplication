@@ -23,6 +23,9 @@ namespace FargoWebApplication.Manager
 {
     public class BookingTransactionMasterManager
     {
+
+        public static int SubmitBookingTransaction(BookingTransactionMasterModel bookingTransactionMaster, out string TransactionId, string MerchantRequestID, string CheckoutRequestID)
+
         public DbFargoApplicationEntities _db = new DbFargoApplicationEntities();
         public static List<BookingTransactionMasterModel> TransactionReport(BOOKING_TRANSACTION_MASTER _BOOKING_TRANSACTION_MASTER)
         {
@@ -62,12 +65,22 @@ namespace FargoWebApplication.Manager
         }
 
         public static int SubmitBookingTransaction(BookingTransactionMasterModel bookingTransactionMaster, string DomainName, out string TransactionId, out bool IS_DUPLICATE_WAYBILL_FOUND, out bool IsValidWayBillNumber, string MerchantRequestID, string CheckoutRequestID)
+
         {
+            string DomainName = ConfigurationManager.AppSettings["DomainName"].ToString();
+            string ETR_URL = ConfigurationManager.AppSettings["ETR_URL"].ToString();
+            string SAP_URL = ConfigurationManager.AppSettings["SAP_URL"].ToString();
+            string SAPAuthorizationHeader = ConfigurationManager.AppSettings["SAPAuthorizationHeader"].ToString();
+            string ETRAccessKey = ConfigurationManager.AppSettings["ETRAccessKey"].ToString();
+            string ETRClientId = ConfigurationManager.AppSettings["ETRClientId"].ToString();
+
             int result = 0; TransactionId = string.Empty;
             double? totalCashAmount = 0; double? totalMPesaAmount = 0; double? totalCreditAmount = 0;
             int NoOfCashTransaction = 0; int NoOfMPesaTransaction = 0; int NoOfCreditTransaction = 0;
+
             IS_DUPLICATE_WAYBILL_FOUND = false;
             IsValidWayBillNumber = true;
+
 
             double totalAmount = bookingTransactionMaster.TOTAL_AMOUNT;
             double taxId = bookingTransactionMaster.TAX_ID;
@@ -334,6 +347,15 @@ namespace FargoWebApplication.Manager
                                 DynamicExportToPDF(TRANSACTION_ID, TRANSACTION_DATE, TRANSACTION_BY, CUSTOMER_PIN, CUSTOMER_MOBILE, PAYMENT_BY, WAYBILL, INVOICE_AMOUNT, TAX_RATE, TAX_AMOUNT, AMOUNT_DUE, TOTAL_AMOUNT, CU_NUMBER, FISCAL_TRANSACTION_NUMBER, QR, DomainName);
                                 int _result = 0;
 
+
+                            #region FOR SAP INTEGRATION REGARDING BOOKING TRANSACTION.
+                            try
+                            {
+                                _result = SAPBookingTransactionIntegration(bookingTransactionMaster.USER_ID, BOOKING_TRANSACTION_ID, TRANSACTION_ID, "KES", DateTime.Now.ToString("MMddyyyy"), bookingTransactionMaster.BOOKING_ORDER_DETAILS.Count(), bookingTransactionMaster.TOTAL_AMOUNT, bookingTransactionMaster.MATERIAL_CODE, STORE_CODE, _ETRTransactionResponseModel.signature.cuNumber, _ETRTransactionResponseModel.signature.fiscalTransactionNumber, bookingTransactionMaster.BOOKING_ORDER_DETAILS.Count().ToString(), SAP_URL, SAPAuthorizationHeader);
+                            }
+                            catch (Exception exception)
+                            {
+
                                 #region FOR SAP INTEGRATION REGARDING BOOKING TRANSACTION.
                                 try
                                 {
@@ -341,6 +363,7 @@ namespace FargoWebApplication.Manager
                                 }
                                 catch (Exception exception)
                                 {
+
 
                                 }
                                 #endregion
@@ -357,7 +380,7 @@ namespace FargoWebApplication.Manager
         }
 
 
-        public static int SAPBookingTransactionIntegration(long USER_ID, string BOOKING_TRANSACTION_ID, string TRANSACTION_ID, string CURRENCY, string DATE, double QUANTITY, double PRICE, string MATERIAL_CODE, string STORE_CODE, string CU_NUMBER, string FISCAL_TRANSACTION_NUMBER, string MATERIAL_TEXT)
+        public static int SAPBookingTransactionIntegration(long USER_ID, string BOOKING_TRANSACTION_ID, string TRANSACTION_ID, string CURRENCY, string DATE, double QUANTITY, double PRICE, string MATERIAL_CODE, string STORE_CODE, string CU_NUMBER, string FISCAL_TRANSACTION_NUMBER, string MATERIAL_TEXT, string SAP_URL, string SAPAuthorizationHeader)
         {
             int result = 0;
             try
@@ -485,7 +508,7 @@ namespace FargoWebApplication.Manager
                     totalCreditAmount = TOTAL_AMOUNT;
                     NoOfCreditTransaction = 1;
 
-                    _DTPayment.Rows.Add(BOOKING_TRANSACTION_ID, USER_ID, USER_ID, "CREDIT", TOTAL_AMOUNT,null, null, "Full payment made via Credit.", "M", "1", USER_ID, DateTime.Now.ToString("MM-dd-yyyy hh:mm:ss"));
+                    _DTPayment.Rows.Add(BOOKING_TRANSACTION_ID, USER_ID, USER_ID, "CREDIT", TOTAL_AMOUNT, null, null, "Full payment made via Credit.", "M", "1", USER_ID, DateTime.Now.ToString("MM-dd-yyyy hh:mm:ss"));
                     _DTPayment.AcceptChanges();
                 }
                 else
@@ -1020,19 +1043,16 @@ namespace FargoWebApplication.Manager
             bool HasNetBalance = true;
             try
             {
-                if (bookingTransactionMaster.CUSTOMER_ID > 0)
+                SqlParameter sp1 = new SqlParameter("@CUSTOMER_ID", bookingTransactionMaster.CUSTOMER_ID);
+                SqlParameter sp2 = new SqlParameter("@FLAG", "3");
+                DataTable dataTable = clsDataAccess.ExecuteDataTable(CommandType.StoredProcedure, "spCreditEntryInsert", sp1, sp2);
+                if (dataTable != null && dataTable.Rows.Count > 0)
                 {
-                    SqlParameter sp1 = new SqlParameter("@CUSTOMER_ID", bookingTransactionMaster.CUSTOMER_ID);
-                    SqlParameter sp2 = new SqlParameter("@FLAG", "3");
-                    DataTable dataTable = clsDataAccess.ExecuteDataTable(CommandType.StoredProcedure, "spCreditEntryInsert", sp1, sp2);
-                    if (dataTable != null && dataTable.Rows.Count > 0)
-                    {
-                        double NET_AMOUNT = Convert.ToDouble(dataTable.Rows[0][0].ToString());
-                        if (bookingTransactionMaster.TOTAL_AMOUNT <= NET_AMOUNT)
-                            HasNetBalance = true;
-                        else
-                            HasNetBalance = false;
-                    }
+                    double NET_AMOUNT = Convert.ToDouble(dataTable.Rows[0][0].ToString());
+                    if (bookingTransactionMaster.TOTAL_AMOUNT <= NET_AMOUNT)
+                        HasNetBalance = true;
+                    else
+                        HasNetBalance = false;
                 }
             }
             catch (Exception exception)
@@ -1059,7 +1079,7 @@ namespace FargoWebApplication.Manager
                             {
                                 if (!string.IsNullOrEmpty(bookingPaymentDetailsModel.PAYMENT_MODE))
                                 {
-                                    if ((bookingPaymentDetailsModel.PAYMENT_MODE.ToUpper().Equals("MPESA")) && (bookingPaymentDetailsModel.AMOUNT>0))
+                                    if ((bookingPaymentDetailsModel.PAYMENT_MODE.ToUpper().Equals("MPESA")) && (bookingPaymentDetailsModel.AMOUNT > 0))
                                     {
                                         MPesaAmount = bookingPaymentDetailsModel.AMOUNT;
                                         IsMPesaTransaction = true;
@@ -1208,5 +1228,97 @@ namespace FargoWebApplication.Manager
             }
             return IsValidCancelTransactionRequest;
         }
+
+
+
+        public static bool IsValidWaybillNumber(BookingTransactionMasterModel bookingTransactionMasterModel)
+        {
+            bool IsValidWaybillNumber = false;
+            try
+            {
+                double Digit = 0;
+                foreach (BookingOrderDetailsModel bookingOrderDetailsModel in bookingTransactionMasterModel.BOOKING_ORDER_DETAILS)
+                {
+                    string WAYBILL_NO = bookingOrderDetailsModel.TRACKING_NUMBER;
+                    if (!string.IsNullOrEmpty(WAYBILL_NO))
+                    {
+                        if (WAYBILL_NO.Contains("FCLIN"))
+                        {
+                            string initCode = WAYBILL_NO.Substring(0, 5);
+                            string initDigit = WAYBILL_NO.Substring(5, 8);
+                            IsValidWaybillNumber = double.TryParse(initDigit, out Digit);
+                            if (!IsValidWaybillNumber) break;
+                        }
+                        else if (WAYBILL_NO.Contains("FCLCA"))
+                        {
+                            string initCode = WAYBILL_NO.Substring(0, 5);
+                            string initDigit = WAYBILL_NO.Substring(5, 8);
+                            IsValidWaybillNumber = double.TryParse(initDigit, out Digit);
+                            if (!IsValidWaybillNumber) break;
+                        }
+                        else if (WAYBILL_NO.Contains("FCL"))
+                        {
+                            string initCode = WAYBILL_NO.Substring(0, 3);
+                            string initDigit = WAYBILL_NO.Substring(3, 8);
+                            IsValidWaybillNumber = double.TryParse(initDigit, out Digit);
+                            if (!IsValidWaybillNumber) break;
+                        }
+                        else
+                        {
+                            IsValidWaybillNumber = false;
+                        }
+                    }
+                    else
+                    {
+                        IsValidWaybillNumber = false; break;
+                    }
+                }
+
+            }
+            catch (Exception exception)
+            {
+                string ErrorMessage = ExceptionLogging.SendErrorToText(exception);
+            };
+            return IsValidWaybillNumber;
+        }
+
+        public static bool IsDuplicateWaybillFound(BookingTransactionMasterModel bookingTransactionMasterModel)
+        {
+            bool IsDuplicateWaybillFound = true;
+            try
+            {
+                string LstWaybills = string.Empty;
+                foreach (BookingOrderDetailsModel bookingOrderDetailsModel in bookingTransactionMasterModel.BOOKING_ORDER_DETAILS)
+                {
+                    string WAYBILL_NO = bookingOrderDetailsModel.TRACKING_NUMBER;
+                    if (string.IsNullOrEmpty(WAYBILL_NO))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        LstWaybills += "'" + WAYBILL_NO + "',";
+                    }
+                }
+                LstWaybills = LstWaybills.TrimEnd(',');
+                string Query = "SELECT * FROM BOOKING_ORDER_DETAILS WHERE TRACKING_NUMBER IN (" + LstWaybills + ")";
+                DataTable dataTable = clsDataAccess.ExecuteDataTable(CommandType.Text, Query);
+                if (dataTable != null && dataTable.Rows.Count > 0)
+                {
+                    IsDuplicateWaybillFound = true;
+                }
+                else
+                {
+                    IsDuplicateWaybillFound = false;
+                }
+            }
+            catch (Exception exception)
+            {
+                string ErrorMessage = ExceptionLogging.SendErrorToText(exception);
+            };
+            return IsDuplicateWaybillFound;
+        }
+
+
     }
 }

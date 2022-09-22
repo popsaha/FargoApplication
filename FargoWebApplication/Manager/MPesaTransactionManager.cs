@@ -12,12 +12,12 @@ using System.Net;
 using System.IO;
 using Newtonsoft.Json;
 using System.Text;
+using System.Configuration;
 
 namespace FargoWebApplication.Manager
 {
     public class MPesaTransactionManager
-    {
-        // customer will send the request for mpesa transaction
+    {       
         public static DataTable MPesaValidation(MPesaValidation mPesaValidation)
         {
             DataTable dataTable = new DataTable();
@@ -39,15 +39,17 @@ namespace FargoWebApplication.Manager
         }
 
         // Step 1: generate a ACCESS TOKEN
-        public static string GenerateAccessToken(string BasicAuthenticationCredentials)
+        public static string GenerateAccessToken()
         {
+            string BasicAuthenticationCredentials = ConfigurationManager.AppSettings["BasicAuthenticationCredentials"].ToString();          
+            string MPesaGenerateAccessTokenURL = ConfigurationManager.AppSettings["MPesaGenerateAccessTokenURL"].ToString();
             string accessToken = string.Empty;
             try
             {
                 string JSONResponse = "{";
                 ServicePointManager.Expect100Continue = true;
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                string URL = String.Format("https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials");
+                string URL = String.Format(MPesaGenerateAccessTokenURL);
                 WebRequest webRequest = WebRequest.Create(URL);
                 webRequest.Method = "GET";
                 webRequest.Headers["Authorization"] = "Basic " + BasicAuthenticationCredentials;
@@ -73,10 +75,15 @@ namespace FargoWebApplication.Manager
         }
 
         //Step 2: Initiate the request to Safaricom
-        public static int MPesaProcess(string MPESA_TRANSACTION_ID, string CUSTOMER_MOBILE, double MPESA_AMOUNT, string TIMESTAMP, string accessToken, string BusinessShortCode, string PasswordKey, out MPesaProcessResponseModel mPesaProcessResponseModel)
+        public static int MPesaProcess(string MPESA_TRANSACTION_ID, string CUSTOMER_MOBILE, double MPESA_AMOUNT, string TIMESTAMP, string accessToken, out MPesaProcessResponseModel mPesaProcessResponseModel)
         {
             int result=0;
             mPesaProcessResponseModel = new MPesaProcessResponseModel();
+            string BusinessShortCode = ConfigurationManager.AppSettings["BusinessShortCode"].ToString();
+            string PasswordKey = ConfigurationManager.AppSettings["PasswordKey"].ToString();
+            string DomainName = ConfigurationManager.AppSettings["DomainName"].ToString();
+            string MPesaInitiateRequestURL = ConfigurationManager.AppSettings["MPesaInitiateRequestURL"].ToString();
+            string MPesaCallbackRequestURL = ConfigurationManager.AppSettings["MPesaCallbackRequestURL"].ToString();
             try
             {
                 string JSONResponse = "{";
@@ -94,11 +101,8 @@ namespace FargoWebApplication.Manager
                 
 
                 // CALLBACK URL to receive the response from MPESA 
-                mPesaProcessModel.CallBackURL = "https://fargo.speed18.com/api/MPesaTransactionAPI/MPesaTransactionRequest";
-
-                //for testing callback API
-                //mPesaProcessModel.CallBackURL = "https://fargo.speed18.com/api/MPesaTransactionAPI/MPesaTransactionTestRequest";
-
+                mPesaProcessModel.CallBackURL = MPesaCallbackRequestURL;
+                
                 mPesaProcessModel.AccountReference = "CompanyXLTD";
                 mPesaProcessModel.TransactionDesc = "Payment of X";
 
@@ -106,7 +110,7 @@ namespace FargoWebApplication.Manager
 
                 ServicePointManager.Expect100Continue = true;
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                string URL = String.Format("https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest");
+                string URL = String.Format(MPesaInitiateRequestURL);
                 WebRequest webRequest = WebRequest.Create(URL);
                 webRequest.Method = "POST";
                 webRequest.Headers["Authorization"] = "Bearer " + accessToken;

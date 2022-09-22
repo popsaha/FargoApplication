@@ -30,43 +30,51 @@ namespace FargoWebApplication.FargoAPI
             try
             {
                 int result = 0;
-                string BasicAuthenticationCredentials = ConfigurationManager.AppSettings["BasicAuthenticationCredentials"].ToString();
-                string BusinessShortCode = ConfigurationManager.AppSettings["BusinessShortCode"].ToString();
-                string PasswordKey = ConfigurationManager.AppSettings["PasswordKey"].ToString();
-
+                string ContactNumber=string.Empty;
                 ResponseModel responseModel = new ResponseModel();
                 string Username = Thread.CurrentPrincipal.Identity.Name;
                 if (!string.IsNullOrEmpty(Username))
                 {
                     MPesaProcessResponseModel mPesaProcessResponseModel = new MPesaProcessResponseModel();
-                    DataTable dataTable = MPesaTransactionManager.MPesaValidation(mPesaValidation);
-                    if (dataTable != null && dataTable.Rows.Count>0)
+                    if (IsValidContactNumber(mPesaValidation, out ContactNumber))
                     {
-                        string MPESA_TRANSACTION_ID = dataTable.Rows[0]["MPESA_TRANSACTION_ID"].ToString();
-                        string CUSTOMER_NAME = dataTable.Rows[0]["CUSTOMER_NAME"].ToString();
-                        string CUSTOMER_MOBILE = dataTable.Rows[0]["CUSTOMER_MOBILE"].ToString();
-                        double MPESA_AMOUNT = Convert.ToDouble(dataTable.Rows[0]["MPESA_AMOUNT"].ToString());
-                        string CREATED_ON = dataTable.Rows[0]["CREATED_ON"].ToString();
-                        string TIMESTAMP = dataTable.Rows[0]["TIMESTAMP"].ToString();
-                        string MERCHANT_REQUEST_ID = String.Empty;
-                        string CHECKOUT_REQUEST_ID = String.Empty;
-
-                        string accessToken = MPesaTransactionManager.GenerateAccessToken(BasicAuthenticationCredentials);
-
-                        if (!string.IsNullOrEmpty(accessToken))
+                        mPesaValidation.CUSTOMER_MOBILE = ContactNumber;
+                        DataTable dataTable = MPesaTransactionManager.MPesaValidation(mPesaValidation);
+                        if (dataTable != null && dataTable.Rows.Count > 0)
                         {
-                            result = MPesaTransactionManager.MPesaProcess(MPESA_TRANSACTION_ID, CUSTOMER_MOBILE, MPESA_AMOUNT, TIMESTAMP, accessToken, BusinessShortCode, PasswordKey, out mPesaProcessResponseModel);
-                            if (mPesaProcessResponseModel != null && result > 0)
+                            string MPESA_TRANSACTION_ID = dataTable.Rows[0]["MPESA_TRANSACTION_ID"].ToString();
+                            string CUSTOMER_NAME = dataTable.Rows[0]["CUSTOMER_NAME"].ToString();
+                            string CUSTOMER_MOBILE = dataTable.Rows[0]["CUSTOMER_MOBILE"].ToString();
+                            double MPESA_AMOUNT = Convert.ToDouble(dataTable.Rows[0]["MPESA_AMOUNT"].ToString());
+                            string CREATED_ON = dataTable.Rows[0]["CREATED_ON"].ToString();
+                            string TIMESTAMP = dataTable.Rows[0]["TIMESTAMP"].ToString();
+                            string MERCHANT_REQUEST_ID = String.Empty;
+                            string CHECKOUT_REQUEST_ID = String.Empty;
+
+                            string accessToken = MPesaTransactionManager.GenerateAccessToken();
+
+                            if (!string.IsNullOrEmpty(accessToken))
                             {
-                                return Request.CreateResponse(HttpStatusCode.OK, mPesaProcessResponseModel);
+                                result = MPesaTransactionManager.MPesaProcess(MPESA_TRANSACTION_ID, CUSTOMER_MOBILE, MPESA_AMOUNT, TIMESTAMP, accessToken, out mPesaProcessResponseModel);
+                                if (mPesaProcessResponseModel != null && result > 0)
+                                {
+                                    return Request.CreateResponse(HttpStatusCode.OK, mPesaProcessResponseModel);
+                                }
+                                else
+                                {
+                                    responseModel.Status = "Failed";
+                                    responseModel.Message = "MPesa transaction not done.";
+                                    responseModel.Description = "MPesa transaction not done.";
+                                    return Request.CreateResponse(HttpStatusCode.InternalServerError, responseModel);
+                                }
                             }
                             else
                             {
                                 responseModel.Status = "Failed";
                                 responseModel.Message = "MPesa transaction not done.";
                                 responseModel.Description = "MPesa transaction not done.";
-                                return Request.CreateResponse(HttpStatusCode.InternalServerError,       responseModel);
-                            }                           
+                                return Request.CreateResponse(HttpStatusCode.InternalServerError, responseModel);
+                            }
                         }
                         else
                         {
@@ -79,10 +87,10 @@ namespace FargoWebApplication.FargoAPI
                     else
                     {
                         responseModel.Status = "Failed";
-                        responseModel.Message = "MPesa transaction not done.";
-                        responseModel.Description = "MPesa transaction not done.";
-                        return Request.CreateResponse(HttpStatusCode.InternalServerError, responseModel);
-                    }
+                        responseModel.Message = "Invalid contact number.";
+                        responseModel.Description = "Invalid contact number.";
+                        return Request.CreateResponse(HttpStatusCode.BadRequest, responseModel);
+                    }                    
                 }
                 else
                 {
@@ -94,6 +102,41 @@ namespace FargoWebApplication.FargoAPI
                 ExceptionLogging.SendErrorToText(exception);
                 return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, exception.Message.ToString());
             }
+        }
+
+        public bool IsValidContactNumber(MPesaValidation mPesaValidation, out string ContactNumber)
+        {
+            bool IsValidMobileNumber = false;
+            ContactNumber = string.Empty;
+            double Digit=0;
+            try
+            {
+                if (mPesaValidation != null)
+                {
+                    string _ContactNumber = mPesaValidation.CUSTOMER_MOBILE;
+                    if (double.TryParse(_ContactNumber, out Digit))
+                    {
+                        if (_ContactNumber.Length == 9)
+                        {
+                            IsValidMobileNumber = true;
+                            ContactNumber = _ContactNumber;
+                        }
+                        else if (_ContactNumber.Length == 10)
+                        {
+                            if (_ContactNumber.StartsWith("0"))
+                            {
+                                IsValidMobileNumber = true;
+                                ContactNumber = _ContactNumber.TrimStart('0');
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                ExceptionLogging.SendErrorToText(exception);
+            }
+            return IsValidMobileNumber;
         }
 
         #region  CALLBACK API.

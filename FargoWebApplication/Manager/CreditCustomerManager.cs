@@ -30,6 +30,7 @@ namespace FargoWebApplication.Manager
                         creditCustomer.CUSTOMER_CODE = sqlDataReader["CUSTOMER_CODE"].ToString();
                         creditCustomer.CUSTOMER_NAME = sqlDataReader["CUSTOMER_NAME"].ToString();
                         creditCustomer.COMPANY = sqlDataReader["COMPANY"].ToString();
+                        creditCustomer.CUSTOMER_PIN = sqlDataReader["CUSTOMER_PIN"].ToString();
                         creditCustomer.PIN_CODE = sqlDataReader["PIN_CODE"].ToString();
                         creditCustomer.COUNTRY_ID = Convert.ToInt64(sqlDataReader["COUNTRY_ID"].ToString());
                         creditCustomer.STATE_ID = Convert.ToInt64(sqlDataReader["STATE_ID"].ToString());
