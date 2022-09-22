@@ -9,7 +9,6 @@ using Newtonsoft.Json;
 using QRCoder;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
@@ -24,7 +23,49 @@ namespace FargoWebApplication.Manager
 {
     public class BookingTransactionMasterManager
     {
+
         public static int SubmitBookingTransaction(BookingTransactionMasterModel bookingTransactionMaster, out string TransactionId, string MerchantRequestID, string CheckoutRequestID)
+
+        public DbFargoApplicationEntities _db = new DbFargoApplicationEntities();
+        public static List<BookingTransactionMasterModel> TransactionReport(BOOKING_TRANSACTION_MASTER _BOOKING_TRANSACTION_MASTER)
+        {
+            List<BookingTransactionMasterModel> LstBookingTransactionMaster = new List<BookingTransactionMasterModel>();
+            try
+            {
+                SqlParameter sp1 = new SqlParameter("@DATE", _BOOKING_TRANSACTION_MASTER.DATE);
+                SqlParameter sp2 = new SqlParameter("@STORE_ID", _BOOKING_TRANSACTION_MASTER.STORE_ID);
+                SqlParameter sp3 = new SqlParameter("@FLAG", "1");
+                SqlDataReader sqlDataReader = clsDataAccess.ExecuteReader(CommandType.StoredProcedure, "spReport", sp1, sp2, sp3);
+                if (sqlDataReader.HasRows)
+                {
+                    while (sqlDataReader.Read())
+                    {
+                        BookingTransactionMasterModel bookingTransactionMaster = new BookingTransactionMasterModel();
+
+                        bookingTransactionMaster.IMEI_NUMBER = sqlDataReader["IMEI_NUMBER"].ToString();
+                        //bookingTransactionMaster.TRACKING_NUMBER = sqlDataReader["TRACKING_NUMBER"].ToString();
+                        bookingTransactionMaster.CUSTOMER_NAME = sqlDataReader["CUSTOMER_NAME"].ToString();
+                        bookingTransactionMaster.CUSTOMER_CONTACT = sqlDataReader["CUSTOMER_CONTACT"].ToString();
+                        // bookingTransactionMaster.COURIER_ADDRESS = sqlDataReader["COURIER_ADDRESS"].ToString();
+                        bookingTransactionMaster.TOTAL_AMOUNT = Convert.ToDouble(sqlDataReader["TOTAL_AMOUNT"].ToString());
+                        //bookingTransactionMaster.PAYMENT_MODE = sqlDataReader["PAYMENT_MODE"].ToString();
+                        //bookingTransactionMaster.REFERENCE_NUMBER = sqlDataReader["REFERENCE_NUMBER"].ToString();
+                        bookingTransactionMaster.DATE = sqlDataReader["DATE"].ToString();
+                        bookingTransactionMaster.STORE_NAME = sqlDataReader["STORE_NAME"].ToString();
+
+                        LstBookingTransactionMaster.Add(bookingTransactionMaster);
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                string ErrorMessage = ExceptionLogging.SendErrorToText(exception);
+            }
+            return LstBookingTransactionMaster;
+        }
+
+        public static int SubmitBookingTransaction(BookingTransactionMasterModel bookingTransactionMaster, string DomainName, out string TransactionId, out bool IS_DUPLICATE_WAYBILL_FOUND, out bool IsValidWayBillNumber, string MerchantRequestID, string CheckoutRequestID)
+
         {
             string DomainName = ConfigurationManager.AppSettings["DomainName"].ToString();
             string ETR_URL = ConfigurationManager.AppSettings["ETR_URL"].ToString();
@@ -36,6 +77,10 @@ namespace FargoWebApplication.Manager
             int result = 0; TransactionId = string.Empty;
             double? totalCashAmount = 0; double? totalMPesaAmount = 0; double? totalCreditAmount = 0;
             int NoOfCashTransaction = 0; int NoOfMPesaTransaction = 0; int NoOfCreditTransaction = 0;
+
+            IS_DUPLICATE_WAYBILL_FOUND = false;
+            IsValidWayBillNumber = true;
+
 
             double totalAmount = bookingTransactionMaster.TOTAL_AMOUNT;
             double taxId = bookingTransactionMaster.TAX_ID;
@@ -50,21 +95,56 @@ namespace FargoWebApplication.Manager
 
             try
             {
+                string NoOfWaybills = string.Empty;
                 string WAYBILL = string.Empty;
                 int Count = 0;
-                if (bookingTransactionMaster.BOOKING_ORDER_DETAILS.Count > 0)
+                if (bookingTransactionMaster.BOOKING_ORDER_DETAILS != null)
                 {
-                    foreach (BookingOrderDetailsModel bookingOrderDetailsModel in bookingTransactionMaster.BOOKING_ORDER_DETAILS)
+                    if (bookingTransactionMaster.BOOKING_ORDER_DETAILS.Count > 0)
                     {
-                        Count = Count + 1;
-                        if (!string.IsNullOrEmpty(bookingOrderDetailsModel.TRACKING_NUMBER))
+                        foreach (BookingOrderDetailsModel bookingOrderDetailsModel in bookingTransactionMaster.BOOKING_ORDER_DETAILS)
                         {
-                            WAYBILL += "<tr><td colspan='2'>&nbsp;&nbsp;&nbsp;" + Count + ". Waybill No:&nbsp;&nbsp;&nbsp;" + bookingOrderDetailsModel.TRACKING_NUMBER + "</td></tr>";
-
+                            Count = Count + 1;
+                            if (!string.IsNullOrEmpty(bookingOrderDetailsModel.TRACKING_NUMBER))
+                            {
+                                NoOfWaybills += "'" + bookingOrderDetailsModel.TRACKING_NUMBER + "',";
+                                WAYBILL += "<tr><td colspan='2'>&nbsp;&nbsp;&nbsp;" + Count + ". Waybill No:&nbsp;&nbsp;&nbsp;" + bookingOrderDetailsModel.TRACKING_NUMBER + "</td></tr>";
+                                IsValidWayBillNumber = IsValidWaybillNumber(bookingOrderDetailsModel.TRACKING_NUMBER);
+                                if (!IsValidWayBillNumber)
+                                { return 0; }
+                            }
+                            else
+                            {
+                                IsValidWayBillNumber = IsValidWaybillNumber(bookingOrderDetailsModel.TRACKING_NUMBER);
+                                if (!IsValidWayBillNumber)
+                                { return 0; }
+                            }
                         }
                     }
+                    else
+                    {
+                        IsValidWayBillNumber = IsValidWaybillNumber("");
+                        if (!IsValidWayBillNumber)
+                        { return 0; }
+                    }
                 }
-
+                else
+                {
+                    IsValidWayBillNumber = IsValidWaybillNumber("");
+                    if (!IsValidWayBillNumber)
+                    { return 0; }
+                }
+                string WAYBILL_QUERY = string.Empty;
+                NoOfWaybills = NoOfWaybills.TrimEnd(',');
+                if (string.IsNullOrEmpty(NoOfWaybills))
+                {
+                    NoOfWaybills = "FCL00000000";
+                    WAYBILL_QUERY = "SELECT * FROM BOOKING_ORDER_DETAILS WHERE TRACKING_NUMBER IN ('" + NoOfWaybills + "')";
+                }
+                else
+                {
+                    WAYBILL_QUERY = "SELECT * FROM BOOKING_ORDER_DETAILS WHERE TRACKING_NUMBER IN (" + NoOfWaybills + ")";
+                }
                 SqlParameter sp1 = new SqlParameter("@USER_ID", bookingTransactionMaster.USER_ID);
                 SqlParameter sp2 = new SqlParameter("@CASHIER_ID", bookingTransactionMaster.CASHIER_ID);
                 SqlParameter sp3 = new SqlParameter("@STORE_ID", bookingTransactionMaster.STORE_ID);
@@ -84,53 +164,75 @@ namespace FargoWebApplication.Manager
                 SqlParameter sp17 = new SqlParameter("@CREATED_ON", DateTime.Now);
                 SqlParameter sp18 = new SqlParameter("@FLAG", "1");
 
-                DataTable dataTable = clsDataAccess.ExecuteDataTable(CommandType.StoredProcedure, "spBookingTransaction", sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8, sp9, sp10, sp11, sp12, sp13, sp14, sp15, sp16, sp17, sp18);
+
+                string transactionQuery = string.Empty;
+                transactionQuery += " DECLARE @NAME VARCHAR(100)='';";
+                transactionQuery += " DECLARE @POS_ID VARCHAR(100)='';";
+                transactionQuery += " DECLARE @REGISTRATION_ID VARCHAR(100)='';";
+                transactionQuery += " DECLARE @STORE_CODE VARCHAR(50)='';";
+                transactionQuery += " IF EXISTS(" + WAYBILL_QUERY + ")";
+                transactionQuery += " BEGIN";
+                transactionQuery += " SELECT '0' AS 'BOOKING_TRANSACTION_ID', null AS 'NAME', null AS 'TRANSACTION_DATE', DATEADD(MINUTE, 330,GETUTCDATE()) AS 'BOOKING_DATETIME', '' AS 'POS_ID', '' AS 'REGISTRATION_ID', '' AS 'STORE_CODE', '1' AS IS_DUPLICATE_WAYBILL_FOUND;";
+                transactionQuery += " END";
+                transactionQuery += " ELSE";
+                transactionQuery += " BEGIN";
+                transactionQuery += " SET @NAME=(SELECT FIRST_NAME+' '+LAST_NAME FROM USER_MASTER WHERE USER_ID=@USER_ID);";
+                transactionQuery += " SELECT @POS_ID=POS_ID, @REGISTRATION_ID=REFERENCE_ID, @STORE_CODE= STORE_CODE FROM STORE_MASTER WHERE STORE_ID=@STORE_ID;";
+                transactionQuery += " INSERT INTO BOOKING_TRANSACTION_MASTER(USER_ID, CASHIER_ID, STORE_ID, IMEI_NUMBER, CUSTOMER_ID, CUSTOMER_NAME, CUSTOMER_CONTACT, CUSTOMER_PIN, INVOICE_AMOUNT, TAX_ID, TAX_RATE, TAX_AMOUNT, TOTAL_AMOUNT, MATERIAL_CODE, DESCRIPTION, DATA_SOURCE, IS_ACTIVE, CREATED_BY, CREATED_ON)";
+                transactionQuery += " VALUES(@USER_ID, @CASHIER_ID, @STORE_ID, @IMEI_NUMBER, @CUSTOMER_ID, @CUSTOMER_NAME, @CUSTOMER_CONTACT, @CUSTOMER_PIN, ROUND(@INVOICE_AMOUNT, 2), @TAX_ID, @TAX_RATE, ROUND(@TAX_AMOUNT, 2), @TOTAL_AMOUNT,  @MATERIAL_CODE, @DESCRIPTION, 'M', '1', @CREATED_BY, DATEADD(MINUTE, 330,GETUTCDATE()));";
+                transactionQuery += " SELECT @@IDENTITY AS 'BOOKING_TRANSACTION_ID', @NAME AS 'NAME', CONVERT(VARCHAR,DATEADD(MINUTE, 330,GETUTCDATE()),107) AS 'TRANSACTION_DATE', DATEADD(MINUTE, 330,GETUTCDATE()) AS 'BOOKING_DATETIME', @POS_ID AS 'POS_ID', @REGISTRATION_ID AS 'REGISTRATION_ID', '0' AS IS_DUPLICATE_WAYBILL_FOUND, @STORE_CODE AS 'STORE_CODE';";
+                transactionQuery += " END";
+
+                DataTable dataTable = clsDataAccess.ExecuteDataTable(CommandType.Text, transactionQuery, sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8, sp9, sp10, sp11, sp12, sp13, sp14, sp15, sp16, sp17, sp18);
                 if (dataTable != null)
                 {
-                    string BOOKING_TRANSACTION_ID = dataTable.Rows[0]["BOOKING_TRANSACTION_ID"].ToString();
-                    string NAME = dataTable.Rows[0]["NAME"].ToString();
-                    string TRANSACTION_DATE = dataTable.Rows[0]["TRANSACTION_DATE"].ToString();
-                    string POS_ID = dataTable.Rows[0]["POS_ID"].ToString();
-                    string REGISTRATION_ID = dataTable.Rows[0]["REGISTRATION_ID"].ToString();
-                    string STORE_CODE = dataTable.Rows[0]["STORE_CODE"].ToString();
-                    DateTime BOOKING_DATETIME = Convert.ToDateTime(dataTable.Rows[0]["BOOKING_DATETIME"].ToString());
-
-                    DataTable _DTPayment = DTPayment(bookingTransactionMaster.BOOKING_PAYMENT_DETAILS, BOOKING_TRANSACTION_ID, bookingTransactionMaster.USER_ID.ToString(), bookingTransactionMaster.CUSTOMER_ID, bookingTransactionMaster.TOTAL_AMOUNT, out totalCashAmount, out totalMPesaAmount, out totalCreditAmount, out NoOfCashTransaction, out NoOfMPesaTransaction, out NoOfCreditTransaction, MerchantRequestID, CheckoutRequestID);
-                    DataTable _DTOrder = DTOrder(bookingTransactionMaster.BOOKING_ORDER_DETAILS, BOOKING_TRANSACTION_ID, bookingTransactionMaster.USER_ID.ToString());
-
-                    SqlParameter _sp1 = new SqlParameter("@BOOKING_TRANSACTION_ID", BOOKING_TRANSACTION_ID);
-                    SqlParameter _sp2 = new SqlParameter("@tblPayment", _DTPayment);
-                    SqlParameter _sp3 = new SqlParameter("@tblOrder", _DTOrder);
-                    SqlParameter _sp4 = new SqlParameter("@TOTAL_AMOUNT", bookingTransactionMaster.TOTAL_AMOUNT);
-                    SqlParameter _sp5 = new SqlParameter("@CUSTOMER_ID", bookingTransactionMaster.CUSTOMER_ID);
-                    SqlParameter _sp6 = new SqlParameter("@TOTAL_CASH_AMOUNT", totalCashAmount);
-                    SqlParameter _sp7 = new SqlParameter("@TOTAL_MPESA_AMOUNT", totalMPesaAmount);
-                    SqlParameter _sp8 = new SqlParameter("@TOTAL_CREDIT_AMOUNT", totalCreditAmount);
-                    SqlParameter _sp9 = new SqlParameter("@NO_OF_CASH_TRANSACTION", NoOfCashTransaction);
-                    SqlParameter _sp10 = new SqlParameter("@NO_OF_MPESA_TRANSACTION", NoOfMPesaTransaction);
-                    SqlParameter _sp11 = new SqlParameter("@NO_OF_CREDIT_TRANSACTION", NoOfCreditTransaction);
-                    SqlParameter _sp12 = new SqlParameter("@CASHIER_ID", bookingTransactionMaster.CASHIER_ID);
-                    SqlParameter _sp13 = new SqlParameter("@STORE_ID", bookingTransactionMaster.STORE_ID);
-                    SqlParameter _sp14 = new SqlParameter("@MERCHANT_REQUEST_ID", MerchantRequestID);
-                    SqlParameter _sp15 = new SqlParameter("@CHECKOUT_REQUEST_ID", CheckoutRequestID);
-                    SqlParameter _sp16 = new SqlParameter("@FLAG", "2");
-
-                    //it_output-pos_id = 'F0001'.                         "'pos01'."for testing in dev/QA
-                    //it_output-registration_id = '84KRA0510500001'.      "'91KRA0030010073'.  "for testing in dev/QA
-                    result = clsDataAccess.ExecuteNonQuery(CommandType.StoredProcedure, "spBookingTransaction", _sp1, _sp2, _sp3, _sp4, _sp5, _sp6, _sp7, _sp8, _sp9, _sp10, _sp11, _sp12, _sp13, _sp14, _sp15, _sp16);
-                    if (result > 0)
+                    IS_DUPLICATE_WAYBILL_FOUND = dataTable.Rows[0]["IS_DUPLICATE_WAYBILL_FOUND"].ToString() == "1" ? true : false;
+                    if (!IS_DUPLICATE_WAYBILL_FOUND)
                     {
-                        string _transactionId = "";
-                        Int32 _initialTransactionId = 100000000;
-                        _transactionId = (_initialTransactionId + Convert.ToInt32(BOOKING_TRANSACTION_ID)).ToString();
-                        TransactionId = _transactionId;
+                        string BOOKING_TRANSACTION_ID = dataTable.Rows[0]["BOOKING_TRANSACTION_ID"].ToString();
+                        string NAME = dataTable.Rows[0]["NAME"].ToString();
+                        string TRANSACTION_DATE = dataTable.Rows[0]["TRANSACTION_DATE"].ToString();
+                        string POS_ID = dataTable.Rows[0]["POS_ID"].ToString();
+                        string REGISTRATION_ID = dataTable.Rows[0]["REGISTRATION_ID"].ToString();
+                        string STORE_CODE = dataTable.Rows[0]["STORE_CODE"].ToString();
+                        DateTime BOOKING_DATETIME = Convert.ToDateTime(dataTable.Rows[0]["BOOKING_DATETIME"].ToString());
 
-                        ETRTransactionBuyerModel _ETRTransactionBuyerModel = new ETRTransactionBuyerModel()
+                        DataTable _DTPayment = DTPayment(bookingTransactionMaster.BOOKING_PAYMENT_DETAILS, BOOKING_TRANSACTION_ID, bookingTransactionMaster.USER_ID.ToString(), bookingTransactionMaster.CUSTOMER_ID, bookingTransactionMaster.TOTAL_AMOUNT, out totalCashAmount, out totalMPesaAmount, out totalCreditAmount, out NoOfCashTransaction, out NoOfMPesaTransaction, out NoOfCreditTransaction, MerchantRequestID, CheckoutRequestID);
+                        DataTable _DTOrder = DTOrder(bookingTransactionMaster.BOOKING_ORDER_DETAILS, BOOKING_TRANSACTION_ID, bookingTransactionMaster.USER_ID.ToString());
+
+                        SqlParameter _sp1 = new SqlParameter("@BOOKING_TRANSACTION_ID", BOOKING_TRANSACTION_ID);
+                        SqlParameter _sp2 = new SqlParameter("@tblPayment", _DTPayment);
+                        SqlParameter _sp3 = new SqlParameter("@tblOrder", _DTOrder);
+                        SqlParameter _sp4 = new SqlParameter("@TOTAL_AMOUNT", bookingTransactionMaster.TOTAL_AMOUNT);
+                        SqlParameter _sp5 = new SqlParameter("@CUSTOMER_ID", bookingTransactionMaster.CUSTOMER_ID);
+                        SqlParameter _sp6 = new SqlParameter("@TOTAL_CASH_AMOUNT", totalCashAmount);
+                        SqlParameter _sp7 = new SqlParameter("@TOTAL_MPESA_AMOUNT", totalMPesaAmount);
+                        SqlParameter _sp8 = new SqlParameter("@TOTAL_CREDIT_AMOUNT", totalCreditAmount);
+                        SqlParameter _sp9 = new SqlParameter("@NO_OF_CASH_TRANSACTION", NoOfCashTransaction);
+                        SqlParameter _sp10 = new SqlParameter("@NO_OF_MPESA_TRANSACTION", NoOfMPesaTransaction);
+                        SqlParameter _sp11 = new SqlParameter("@NO_OF_CREDIT_TRANSACTION", NoOfCreditTransaction);
+                        SqlParameter _sp12 = new SqlParameter("@CASHIER_ID", bookingTransactionMaster.CASHIER_ID);
+                        SqlParameter _sp13 = new SqlParameter("@STORE_ID", bookingTransactionMaster.STORE_ID);
+                        SqlParameter _sp14 = new SqlParameter("@MERCHANT_REQUEST_ID", MerchantRequestID);
+                        SqlParameter _sp15 = new SqlParameter("@CHECKOUT_REQUEST_ID", CheckoutRequestID);
+                        SqlParameter _sp16 = new SqlParameter("@FLAG", "2");
+
+                        //it_output-pos_id = 'F0001'.                         "'pos01'."for testing in dev/QA
+                        //it_output-registration_id = '84KRA0510500001'.      "'91KRA0030010073'.  "for testing in dev/QA
+                        result = clsDataAccess.ExecuteNonQuery(CommandType.StoredProcedure, "spBookingTransaction", _sp1, _sp2, _sp3, _sp4, _sp5, _sp6, _sp7, _sp8, _sp9, _sp10, _sp11, _sp12, _sp13, _sp14, _sp15, _sp16);
+                        if (result > 0)
                         {
-                            registrationName = "Domestic Customer",
-                            taxIdentificationNumber = "PSK12121989"
-                        };
-                        List<ETRTransactionItemModel> _ETRTransactionItemModel = new List<ETRTransactionItemModel>()
+                            string _transactionId = "";
+                            Int32 _initialTransactionId = 100000000;
+                            _transactionId = (_initialTransactionId + Convert.ToInt32(BOOKING_TRANSACTION_ID)).ToString();
+                            TransactionId = _transactionId;
+
+                            ETRTransactionBuyerModel _ETRTransactionBuyerModel = new ETRTransactionBuyerModel()
+                            {
+                                registrationName = "Domestic Customer",
+                                taxIdentificationNumber = "PSK12121989"
+                            };
+                            List<ETRTransactionItemModel> _ETRTransactionItemModel = new List<ETRTransactionItemModel>()
                         {
                             new  ETRTransactionItemModel
                             {
@@ -144,106 +246,107 @@ namespace FargoWebApplication.Manager
                                 total = 4720.46
                             }
                         };
-                        ETRTransactionTaxModel _ETRTransactionTaxModel = new ETRTransactionTaxModel()
-                        {
-                            vatNetAmount = 4069.36,
-                            vatTaxAmount = 651.10
-                        };
-                        ETRTransactionModel _ETRTransactionModel = new ETRTransactionModel()
-                        {
-                            buyer = _ETRTransactionBuyerModel,
-                            cashier1 = "",
-                            currencyCode = "KSH",
-                            discountAmount = 0,
-                            invoiceDocumentReference = "",
-                            issueDate = "2022-07-15",
-                            issueTime = "11:08:13",
-                            items = _ETRTransactionItemModel,
-                            posID = POS_ID,
-                            registrationID = REGISTRATION_ID,
-                            tax = _ETRTransactionTaxModel,
-                            taxExclusiveAmount = 4069.36,
-                            taxInclusiveAmount = 4720.46,
-                            transactionID = _transactionId,
-                            transactionTypeCode = 1
-                        };
-
-                        string JSONResponse = "{";
-                        string JSONString = JsonConvert.SerializeObject(_ETRTransactionModel);
-
-                        ServicePointManager.Expect100Continue = true;
-                        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                        ServicePointManager.ServerCertificateValidationCallback = new
-                                                                                RemoteCertificateValidationCallback
-                                                                                (
-                                                                                   delegate { return true; }
-                                                                                );
-
-                        string URL = String.Format(ETR_URL);
-                        WebRequest webRequest = WebRequest.Create(URL);
-                        webRequest.Method = "POST";
-                        webRequest.Headers["clientid"] = ETRClientId;
-                        webRequest.Headers["accessKey"] = ETRAccessKey;
-                        webRequest.ContentType = "application/json";
-
-                        using (var stramWriter = new StreamWriter(webRequest.GetRequestStream()))
-                        {
-                            stramWriter.Write(JSONString);
-                            stramWriter.Flush();
-                            stramWriter.Close();
-                            HttpWebResponse httpWebResponse = (HttpWebResponse)webRequest.GetResponse();
-
-                            StreamReader streamReader = new StreamReader(httpWebResponse.GetResponseStream());
-                            string responseString = streamReader.ReadLine();
-                            JSONResponse = responseString;
-                        }
-                        string Base64EndcodedJSONResponse = EncryptDecryptString.EncodeBase64(JSONResponse);
-                        ETRTransactionResponseModel _ETRTransactionResponseModel = JsonConvert.DeserializeObject<ETRTransactionResponseModel>(JSONResponse);
-
-                        string FileLocation = DomainName + "Invoices/" + "INVOICE_" + _ETRTransactionResponseModel.transactionID + ".pdf";
-                        SqlParameter sp1_ = new SqlParameter("@BOOKING_TRANSACTION_ID", BOOKING_TRANSACTION_ID);
-                        SqlParameter sp2_ = new SqlParameter("@TRANSACTION_ID", _ETRTransactionResponseModel.transactionID);
-                        SqlParameter sp3_ = new SqlParameter("@CU_NUMBER", _ETRTransactionResponseModel.signature == null ? null : _ETRTransactionResponseModel.signature.cuNumber);
-                        SqlParameter sp4_ = new SqlParameter("@TIMESTAMP", _ETRTransactionResponseModel.signature == null ? null : _ETRTransactionResponseModel.signature.timestamp);
-                        SqlParameter sp5_ = new SqlParameter("@FISCAL_TRANSACTION_NUMBER", _ETRTransactionResponseModel.signature == null ? null : _ETRTransactionResponseModel.signature.fiscalTransactionNumber);
-                        SqlParameter sp6_ = new SqlParameter("@QR", _ETRTransactionResponseModel.qr);
-                        SqlParameter sp7_ = new SqlParameter("@IS_DUPLICATE", _ETRTransactionResponseModel.isDuplicate == null ? false : _ETRTransactionResponseModel.isDuplicate);
-                        SqlParameter sp8_ = new SqlParameter("@SUCCESS", _ETRTransactionResponseModel.success == null ? "" : _ETRTransactionResponseModel.success);
-                        SqlParameter sp9_ = new SqlParameter("@ERROR_CODE", _ETRTransactionResponseModel.errorCode == null ? "" : _ETRTransactionResponseModel.errorCode);
-                        SqlParameter sp10_ = new SqlParameter("@ERROR_MESSAGE", _ETRTransactionResponseModel.errorMessage == null ? "" : _ETRTransactionResponseModel.errorMessage);
-                        SqlParameter sp11_ = new SqlParameter("@FILE_LOCATION", FileLocation);
-                        SqlParameter sp12_ = new SqlParameter("@CREATED_BY", bookingTransactionMaster.USER_ID);
-                        SqlParameter sp13_ = new SqlParameter("@FLAG", "1");
-                        int ETRResult = clsDataAccess.ExecuteNonQuery(CommandType.StoredProcedure, "spETRTransaction", sp1_, sp2_, sp3_, sp4_, sp5_, sp6_, sp7_, sp8_, sp9_, sp10_, sp11_, sp12_, sp13_);
-                        if (ETRResult > 0)
-                        {
-                            string TRANSACTION_ID = _ETRTransactionResponseModel.transactionID;
-                            TRANSACTION_DATE = TRANSACTION_DATE.ToString();
-                            string TRANSACTION_BY = NAME;
-                            string CUSTOMER_PIN = bookingTransactionMaster.CUSTOMER_PIN;
-                            string CUSTOMER_MOBILE = bookingTransactionMaster.CUSTOMER_CONTACT;
-                            string PAYMENT_BY = string.Empty;
-                            if (bookingTransactionMaster.CUSTOMER_ID > 0)
+                            ETRTransactionTaxModel _ETRTransactionTaxModel = new ETRTransactionTaxModel()
                             {
-                                PAYMENT_BY = "CREDIT";
-                            }
-                            else
+                                vatNetAmount = 4069.36,
+                                vatTaxAmount = 651.10
+                            };
+                            ETRTransactionModel _ETRTransactionModel = new ETRTransactionModel()
                             {
-                                PAYMENT_BY = string.Join("/", bookingTransactionMaster.BOOKING_PAYMENT_DETAILS.Select(x => x.PAYMENT_MODE).ToArray());
+                                buyer = _ETRTransactionBuyerModel,
+                                cashier1 = "",
+                                currencyCode = "KSH",
+                                discountAmount = 0,
+                                invoiceDocumentReference = "",
+                                issueDate = "2022-07-15",
+                                issueTime = "11:08:13",
+                                items = _ETRTransactionItemModel,
+                                posID = POS_ID,
+                                registrationID = REGISTRATION_ID,
+                                tax = _ETRTransactionTaxModel,
+                                taxExclusiveAmount = 4069.36,
+                                taxInclusiveAmount = 4720.46,
+                                transactionID = _transactionId,
+                                transactionTypeCode = 1
+                            };
+
+                            string JSONResponse = "{";
+                            string JSONString = JsonConvert.SerializeObject(_ETRTransactionModel);
+
+                            ServicePointManager.Expect100Continue = true;
+                            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                            ServicePointManager.ServerCertificateValidationCallback = new
+                                                                                    RemoteCertificateValidationCallback
+                                                                                    (
+                                                                                       delegate { return true; }
+                                                                                    );
+
+                            string URL = String.Format("https://52.168.16.149:8010/api/v2.0/transaction/new");
+                            WebRequest webRequest = WebRequest.Create(URL);
+                            webRequest.Method = "POST";
+                            webRequest.Headers["clientid"] = "OiZqm01q9S51y5J";
+                            webRequest.Headers["accessKey"] = "3ZixXmuHFk7qyXO+2sfxPxFmEROn4m13mir+gRjFFfk=";
+                            webRequest.ContentType = "application/json";
+
+                            using (var stramWriter = new StreamWriter(webRequest.GetRequestStream()))
+                            {
+                                stramWriter.Write(JSONString);
+                                stramWriter.Flush();
+                                stramWriter.Close();
+                                HttpWebResponse httpWebResponse = (HttpWebResponse)webRequest.GetResponse();
+
+                                StreamReader streamReader = new StreamReader(httpWebResponse.GetResponseStream());
+                                string responseString = streamReader.ReadLine();
+                                JSONResponse = responseString;
                             }
+                            string Base64EndcodedJSONResponse = EncryptDecryptString.EncodeBase64(JSONResponse);
+                            ETRTransactionResponseModel _ETRTransactionResponseModel = JsonConvert.DeserializeObject<ETRTransactionResponseModel>(JSONResponse);
 
-                            double INVOICE_AMOUNT = bookingTransactionMaster.INVOICE_AMOUNT;
-                            double TAX_RATE = bookingTransactionMaster.TAX_RATE;
-                            double TAX_AMOUNT = bookingTransactionMaster.TAX_AMOUNT;
-                            double AMOUNT_DUE = 0;
-                            double TOTAL_AMOUNT = bookingTransactionMaster.TOTAL_AMOUNT;
-                            string CU_NUMBER = _ETRTransactionResponseModel.signature == null ? "" : _ETRTransactionResponseModel.signature.cuNumber;
-                            string FISCAL_TRANSACTION_NUMBER = _ETRTransactionResponseModel.signature == null ? "" : _ETRTransactionResponseModel.signature.fiscalTransactionNumber;
-                            string QR = _ETRTransactionResponseModel.qr;
+                            string FileLocation = DomainName + "Invoices/" + "INVOICE_" + _ETRTransactionResponseModel.transactionID + ".pdf";
+                            SqlParameter sp1_ = new SqlParameter("@BOOKING_TRANSACTION_ID", BOOKING_TRANSACTION_ID);
+                            SqlParameter sp2_ = new SqlParameter("@TRANSACTION_ID", _ETRTransactionResponseModel.transactionID);
+                            SqlParameter sp3_ = new SqlParameter("@CU_NUMBER", _ETRTransactionResponseModel.signature == null ? null : _ETRTransactionResponseModel.signature.cuNumber);
+                            SqlParameter sp4_ = new SqlParameter("@TIMESTAMP", _ETRTransactionResponseModel.signature == null ? null : _ETRTransactionResponseModel.signature.timestamp);
+                            SqlParameter sp5_ = new SqlParameter("@FISCAL_TRANSACTION_NUMBER", _ETRTransactionResponseModel.signature == null ? null : _ETRTransactionResponseModel.signature.fiscalTransactionNumber);
+                            SqlParameter sp6_ = new SqlParameter("@QR", _ETRTransactionResponseModel.qr);
+                            SqlParameter sp7_ = new SqlParameter("@IS_DUPLICATE", _ETRTransactionResponseModel.isDuplicate == null ? false : _ETRTransactionResponseModel.isDuplicate);
+                            SqlParameter sp8_ = new SqlParameter("@SUCCESS", _ETRTransactionResponseModel.success == null ? "" : _ETRTransactionResponseModel.success);
+                            SqlParameter sp9_ = new SqlParameter("@ERROR_CODE", _ETRTransactionResponseModel.errorCode == null ? "" : _ETRTransactionResponseModel.errorCode);
+                            SqlParameter sp10_ = new SqlParameter("@ERROR_MESSAGE", _ETRTransactionResponseModel.errorMessage == null ? "" : _ETRTransactionResponseModel.errorMessage);
+                            SqlParameter sp11_ = new SqlParameter("@FILE_LOCATION", FileLocation);
+                            SqlParameter sp12_ = new SqlParameter("@CREATED_BY", bookingTransactionMaster.USER_ID);
+                            SqlParameter sp13_ = new SqlParameter("@FLAG", "1");
+                            int ETRResult = clsDataAccess.ExecuteNonQuery(CommandType.StoredProcedure, "spETRTransaction", sp1_, sp2_, sp3_, sp4_, sp5_, sp6_, sp7_, sp8_, sp9_, sp10_, sp11_, sp12_, sp13_);
+                            if (ETRResult > 0)
+                            {
+                                string TRANSACTION_ID = _ETRTransactionResponseModel.transactionID;
+                                TRANSACTION_DATE = TRANSACTION_DATE.ToString();
+                                string TRANSACTION_BY = NAME;
+                                string CUSTOMER_PIN = bookingTransactionMaster.CUSTOMER_PIN;
+                                string CUSTOMER_MOBILE = bookingTransactionMaster.CUSTOMER_CONTACT;
+                                string PAYMENT_BY = string.Empty;
+                                if (bookingTransactionMaster.CUSTOMER_ID > 0)
+                                {
+                                    PAYMENT_BY = "CREDIT";
+                                }
+                                else
+                                {
+                                    PAYMENT_BY = string.Join("/", bookingTransactionMaster.BOOKING_PAYMENT_DETAILS.Select(x => x.PAYMENT_MODE).ToArray());
+                                }
+
+                                double INVOICE_AMOUNT = bookingTransactionMaster.INVOICE_AMOUNT;
+                                double TAX_RATE = bookingTransactionMaster.TAX_RATE;
+                                double TAX_AMOUNT = bookingTransactionMaster.TAX_AMOUNT;
+                                double AMOUNT_DUE = 0;
+                                double TOTAL_AMOUNT = bookingTransactionMaster.TOTAL_AMOUNT;
+                                string CU_NUMBER = _ETRTransactionResponseModel.signature == null ? "" : _ETRTransactionResponseModel.signature.cuNumber;
+                                string FISCAL_TRANSACTION_NUMBER = _ETRTransactionResponseModel.signature == null ? "" : _ETRTransactionResponseModel.signature.fiscalTransactionNumber;
+                                string QR = _ETRTransactionResponseModel.qr;
 
 
-                            DynamicExportToPDF(TRANSACTION_ID, TRANSACTION_DATE, TRANSACTION_BY, CUSTOMER_PIN, CUSTOMER_MOBILE, PAYMENT_BY, WAYBILL, INVOICE_AMOUNT, TAX_RATE, TAX_AMOUNT, AMOUNT_DUE, TOTAL_AMOUNT, CU_NUMBER, FISCAL_TRANSACTION_NUMBER, QR, DomainName);
-                            int _result = 0;
+                                DynamicExportToPDF(TRANSACTION_ID, TRANSACTION_DATE, TRANSACTION_BY, CUSTOMER_PIN, CUSTOMER_MOBILE, PAYMENT_BY, WAYBILL, INVOICE_AMOUNT, TAX_RATE, TAX_AMOUNT, AMOUNT_DUE, TOTAL_AMOUNT, CU_NUMBER, FISCAL_TRANSACTION_NUMBER, QR, DomainName);
+                                int _result = 0;
+
 
                             #region FOR SAP INTEGRATION REGARDING BOOKING TRANSACTION.
                             try
@@ -253,8 +356,18 @@ namespace FargoWebApplication.Manager
                             catch (Exception exception)
                             {
 
+                                #region FOR SAP INTEGRATION REGARDING BOOKING TRANSACTION.
+                                try
+                                {
+                                    _result = SAPBookingTransactionIntegration(bookingTransactionMaster.USER_ID, BOOKING_TRANSACTION_ID, TRANSACTION_ID, "USD", DateTime.Now.ToString("MMddyyyy"), bookingTransactionMaster.BOOKING_ORDER_DETAILS.Count(), bookingTransactionMaster.TOTAL_AMOUNT, bookingTransactionMaster.MATERIAL_CODE, STORE_CODE, _ETRTransactionResponseModel.signature.cuNumber, _ETRTransactionResponseModel.signature.fiscalTransactionNumber, NoOfWaybills);
+                                }
+                                catch (Exception exception)
+                                {
+
+
+                                }
+                                #endregion
                             }
-                            #endregion
                         }
                     }
                 }
@@ -314,10 +427,10 @@ namespace FargoWebApplication.Manager
                                                                            delegate { return true; }
                                                                         );
 
-                string URL = String.Format(SAP_URL);
+                string URL = String.Format("http://fc-podev.fargocourier.co.ke:50000/RESTAdapter/webserver/mobileapp/salesorder");
                 WebRequest webRequest = WebRequest.Create(URL);
                 webRequest.Method = "POST";
-                webRequest.Headers["Authorization"] = SAPAuthorizationHeader;
+                webRequest.Headers["Authorization"] = "Basic ZnJlaWdoX3VzZXI6RmFyZ29AMjAyMg==";
                 webRequest.ContentType = "application/json";
 
                 using (var stramWriter = new StreamWriter(webRequest.GetRequestStream()))
@@ -823,10 +936,6 @@ namespace FargoWebApplication.Manager
             }
         }
 
-
-
-
-
         public static string GenerateQRCode(string QRText, string TransactionId, string DOMAIN_NAME, out string QRFileName)
         {
             string ImageURL = string.Empty;
@@ -1121,6 +1230,7 @@ namespace FargoWebApplication.Manager
         }
 
 
+
         public static bool IsValidWaybillNumber(BookingTransactionMasterModel bookingTransactionMasterModel)
         {
             bool IsValidWaybillNumber = false;
@@ -1208,6 +1318,7 @@ namespace FargoWebApplication.Manager
             };
             return IsDuplicateWaybillFound;
         }
+
 
     }
 }

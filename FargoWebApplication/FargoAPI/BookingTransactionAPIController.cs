@@ -20,18 +20,25 @@ namespace FargoWebApplication.FargoAPI
         [Route("api/BookingTransactionAPI/BookingTransactionMaster")]
         public HttpResponseMessage BookingTransactionMaster([FromBody] BookingTransactionMasterModel bookingTransactionMaster)
         {
+            string DomainName = ConfigurationManager.AppSettings["DomainName"].ToString();
             string TransactionId = string.Empty;
             BookingResponseModel bookingResponseModel = new BookingResponseModel();
             try
             {
                 string Username = Thread.CurrentPrincipal.Identity.Name;
+
+
+                bool IsDuplicateWaybillFound = false; bool IsValidWayBillNumber = true;
+                string MerchantRequestID = string.Empty; string CheckoutRequestID = string.Empty;
+
                 if (!string.IsNullOrEmpty(Username))
                 {
-                    string MerchantRequestID = string.Empty; string CheckoutRequestID = string.Empty;
-                    if (bookingTransactionMaster != null)
-                    {
-                        if (bookingTransactionMaster.BOOKING_ORDER_DETAILS != null)
+                    double MPesaAmount = 0;
+                    if (BookingTransactionMasterManager.IsMPesaTransaction("Booking",bookingTransactionMaster, null, out MPesaAmount))
+                    {                        
+                        if (bookingTransactionMaster != null)
                         {
+
                             //CHECKING if Valid Waybill
                             if (BookingTransactionMasterManager.IsValidWaybillNumber(bookingTransactionMaster))
                             {
@@ -168,16 +175,71 @@ namespace FargoWebApplication.FargoAPI
                             bookingResponseModel.Message = "Transaction not done.";
                             bookingResponseModel.Description = "Waybill information is missing.";
                             return Request.CreateResponse(HttpStatusCode.BadRequest, bookingResponseModel);
+
+                            if (bookingTransactionMaster.BOOKING_MPESA_TRANSACTION != null)
+                            {
+                                MerchantRequestID = bookingTransactionMaster.BOOKING_MPESA_TRANSACTION.MERCHANT_REQUEST_ID;
+                                CheckoutRequestID = bookingTransactionMaster.BOOKING_MPESA_TRANSACTION.CHECKOUT_REQUEST_ID;
+
+                                if (!BookingTransactionMasterManager.IsMPesaValidResponse(MPesaAmount, MerchantRequestID, CheckoutRequestID, out bookingResponseModel))
+                                {
+                                    return Request.CreateResponse(HttpStatusCode.BadRequest, bookingResponseModel);
+                                }
+                            }
+
                         }
                     }
-                    else
+                    //Credit customer balance check
+                    else if (!BookingTransactionMasterManager.HasNetBalance(bookingTransactionMaster))
                     {
                         bookingResponseModel.TransactionId = null;
                         bookingResponseModel.Status = "Failed";
-                        bookingResponseModel.Message = "Transaction not done.";
-                        bookingResponseModel.Description = "Required information is missing.";
+                        bookingResponseModel.Message = "Insufficient account balance for customer.";
+                        bookingResponseModel.Description = "Insufficient account balance for customer.";
                         return Request.CreateResponse(HttpStatusCode.BadRequest, bookingResponseModel);
                     }
+
+                    //booking submit method 
+                    int result = BookingTransactionMasterManager.SubmitBookingTransaction(bookingTransactionMaster, DomainName, out TransactionId, out IsDuplicateWaybillFound, out IsValidWayBillNumber, MerchantRequestID, CheckoutRequestID);
+                    if (result > 0)
+                    {
+                        bookingResponseModel.TransactionId = TransactionId;
+                        bookingResponseModel.Status = "Success";
+                        bookingResponseModel.Message = "Transaction booked successfully.";
+                        bookingResponseModel.Description = "Transaction booked successfully.";
+                        return Request.CreateResponse(HttpStatusCode.Created, bookingResponseModel);
+                    }
+                    else
+                    {
+                        if (!IsValidWayBillNumber)
+                        {
+                            bookingResponseModel.TransactionId = null;
+                            bookingResponseModel.Status = "Failed";
+                            bookingResponseModel.Message = "Invalid or missing waybill found.";
+                            bookingResponseModel.Description = "Invalid or missing waybill found.";
+                            return Request.CreateResponse(HttpStatusCode.BadRequest, bookingResponseModel);
+                        }
+                        else
+                        {
+                            if (IsDuplicateWaybillFound)
+                            {
+                                bookingResponseModel.TransactionId = null;
+                                bookingResponseModel.Status = "Failed";
+                                bookingResponseModel.Message = "Duplicate waybill found.";
+                                bookingResponseModel.Description = "Duplicate waybill found.";
+                                return Request.CreateResponse(HttpStatusCode.BadRequest, bookingResponseModel);
+                            }
+                            else
+                            {
+                                bookingResponseModel.TransactionId = null;
+                                bookingResponseModel.Status = "Failed";
+                                bookingResponseModel.Message = "Transaction not done.";
+                                bookingResponseModel.Description = "Something went wrong. Please try again.";
+                                return Request.CreateResponse(HttpStatusCode.InternalServerError, bookingResponseModel);
+                            }
+                        }
+                    }
+
                 }
                 else
                 {
